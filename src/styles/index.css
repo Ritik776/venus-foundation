@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* ============================================================
+   VENUS FOUNDATION — Tailwind v4 theme tokens
+   Exposed as utilities (bg-navy, text-gold, font-display, …)
+   ============================================================ */
+@theme {
+  --color-navy: #1b4f72;
+  --color-navy-deep: #11324a;
+  --color-red: #e74c3c;
+  --color-red-deep: #c33a2b;
+  --color-green: #52b947;
+  --color-green-deep: #2e7d32;
+  --color-gold: #f4b942;
+  --color-sky: #29b6f6;
+  --color-cream: #f9f9f7;
+  --color-cream-2: #f1efe9;
+  --color-charcoal: #2a2a2a;
+  --color-ink: #1c1c1c;
+
+  --font-display: "Clash Display", ui-serif, serif;
+  --font-sans: "Satoshi", "Helvetica Neue", system-ui, sans-serif;
+
+  --radius-card: 18px;
+  --radius-card-lg: 30px;
+
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-brand-2: cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+/* ------------------------------------------------------------
+   Short aliases consumed by the ported design-system CSS.
+   Kept in sync with the @theme tokens above so there is a
+   single source of truth for brand values.
+   ------------------------------------------------------------ */
+:root {
+  --navy: var(--color-navy);
+  --navy-deep: var(--color-navy-deep);
+  --red: var(--color-red);
+  --red-deep: var(--color-red-deep);
+  --green: var(--color-green);
+  --green-deep: var(--color-green-deep);
+  --gold: var(--color-gold);
+  --sky: var(--color-sky);
+  --cream: var(--color-cream);
+  --cream-2: var(--color-cream-2);
+  --charcoal: var(--color-charcoal);
+  --ink: var(--color-ink);
+  --white: #ffffff;
+  --line: rgba(27, 79, 114, 0.14);
+
+  --bg: var(--cream);
+  --text: var(--charcoal);
+  --heading: var(--navy);
+  --accent: var(--red);
+
+  --display: var(--font-display);
+  --sans: var(--font-sans);
+
+  --section: clamp(72px, 10vw, 150px);
+  --gutter: clamp(20px, 5vw, 80px);
+  --maxw: 1320px;
+
+  --radius: 18px;
+  --radius-lg: 30px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-2: cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+@import "./base.css" layer(base);
+@import "./components.css" layer(components);
+@import "./pages.css" layer(components);
