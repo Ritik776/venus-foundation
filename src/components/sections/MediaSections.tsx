@@ -5,9 +5,11 @@ import { Eyebrow } from "@/components/primitives/Eyebrow";
 import { Icon } from "@/components/primitives/Icon";
 import { Reveal, type RevealDelay } from "@/components/primitives/Reveal";
 import { SplitText } from "@/components/primitives/SplitText";
+import type { YtVideo } from "@/content/generated/youtube";
 import { mediaContent, type NfCard, type NfRow, type WallCard } from "@/content/media";
 import { useDragScroll, useRailControls } from "@/hooks/usePointerEffects";
 import { useScrub } from "@/hooks/useScrollScenes";
+import { useYouTubeVideos } from "@/hooks/useYouTubeVideos";
 
 const m = mediaContent;
 
@@ -109,8 +111,33 @@ function NfRailRow({ row }: { row: NfRow }) {
   );
 }
 
+const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+function toCard(v: YtVideo): NfCard {
+  return {
+    image: v.thumb,
+    title: v.title,
+    tags: [v.short ? "Short" : "Film", fmtDuration(v.seconds)],
+    videoId: v.id,
+    short: v.short,
+  };
+}
+
+/** Build the browse rows from the (live or snapshot) video list. */
+function buildRows(videos: YtVideo[]): NfRow[] {
+  const cards = videos.map(toCard);
+  const shorts = cards.filter((c) => c.short);
+  return [
+    { id: "nf-shorts", title: "Shorts", shorts: true, explore: true, cards: shorts },
+    { id: "nf-row1", title: "Trending now", explore: true, cards: cards.slice(0, 10) },
+    { id: "nf-row2", title: "Top 10 this month", top10: true, cards: shorts.slice(0, 10) },
+    { id: "nf-row3", title: "Stories by cause", explore: true, cards: cards.slice(8) },
+  ];
+}
+
 export function NetflixBrowser() {
   const { netflix: nf } = m;
+  const rows = buildRows(useYouTubeVideos());
   return (
     <section className="pad nf-surface grain" id="watch">
       <div className="wrap">
@@ -133,7 +160,7 @@ export function NetflixBrowser() {
           </a>
         </div>
       </div>
-      {nf.rows.map((row) => (
+      {rows.map((row) => (
         <NfRailRow row={row} key={row.id} />
       ))}
     </section>

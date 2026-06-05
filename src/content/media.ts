@@ -2,19 +2,8 @@ import type { Cta, ImageRef } from "@/types/content";
 import { youtubeVideos } from "./generated/youtube";
 import { img } from "./images";
 
-const fmtDuration = (s: number): string =>
-  `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-
-/** Every synced YouTube video as a Netflix card (real thumbnail + inline playback). */
-const allVideos: NfCard[] = youtubeVideos.map((v) => ({
-  image: v.thumb,
-  title: v.title,
-  tags: [v.short ? "Short" : "Film", fmtDuration(v.seconds)],
-  videoId: v.id,
-  short: v.short,
-}));
-const syncedShorts: NfCard[] = allVideos.filter((c) => c.short);
-const syncedFilms: NfCard[] = allVideos.filter((c) => !c.short);
+/** Default "play film" target from the committed snapshot (latest long-form, else first). */
+const heroVideoId = (youtubeVideos.find((v) => !v.short) ?? youtubeVideos[0])?.id ?? "demo";
 
 const YT = "https://www.youtube.com/@FoundationVenus";
 const IG = "https://www.instagram.com/venus.foundation";
@@ -103,43 +92,13 @@ export const mediaContent = {
     words: [{ text: "Empower." }, { text: "Elevate." }, { text: "Evolve." }],
     subtitle:
       "Visual stories travel faster than words — a single film can spark awareness worldwide. Watch how change happens, heart to heart.",
-    videoId: syncedFilms[0]?.videoId ?? syncedShorts[0]?.videoId ?? "demo",
+    videoId: heroVideoId,
   },
 
   netflix: {
     badge: "Venus Originals",
     title: "Browse our world of stories.",
     subscribeUrl: YT,
-    rows: [
-      {
-        // Shorts rail — vertical cards that play inline in a 9:16 frame.
-        // Add more: paste each Short link as `videoId` (e.g. a /shorts/<id> URL)
-        // and keep `short: true`. The thumbnail is pulled automatically.
-        id: "nf-shorts",
-        title: "Shorts",
-        shorts: true,
-        explore: true,
-        cards: syncedShorts,
-      },
-      {
-        id: "nf-row1",
-        title: "Trending now",
-        explore: true,
-        cards: allVideos.slice(0, 10),
-      },
-      {
-        id: "nf-row2",
-        title: "Top 10 this month",
-        top10: true,
-        cards: syncedShorts.slice(0, 10),
-      },
-      {
-        id: "nf-row3",
-        title: "Stories by cause",
-        explore: true,
-        cards: allVideos.slice(8),
-      },
-    ] satisfies NfRow[],
   },
 
   footage: {
