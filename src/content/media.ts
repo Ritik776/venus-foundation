@@ -1,69 +1,356 @@
 import type { Cta, ImageRef } from "@/types/content";
+import { youtubeVideos } from "./generated/youtube";
 import { img } from "./images";
 
-export interface VideoStory {
+const fmtDuration = (s: number): string =>
+  `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+/** Every synced YouTube video as a Netflix card (real thumbnail + inline playback). */
+const allVideos: NfCard[] = youtubeVideos.map((v) => ({
+  image: v.thumb,
+  title: v.title,
+  tags: [v.short ? "Short" : "Film", fmtDuration(v.seconds)],
+  videoId: v.id,
+  short: v.short,
+}));
+const syncedShorts: NfCard[] = allVideos.filter((c) => c.short);
+const syncedFilms: NfCard[] = allVideos.filter((c) => !c.short);
+
+const YT = "https://www.youtube.com/@FoundationVenus";
+const IG = "https://www.instagram.com/venus.foundation";
+const FB = "https://www.facebook.com/foundationvenus/";
+const LI = "https://www.linkedin.com/company/foundationvenus/";
+const IG_HANDLE = "@venus.foundation";
+
+export interface NfCard {
   image: string;
-  meta: string;
-  title: string;
+  title?: string;
+  tags?: readonly string[];
+  badge?: string;
+  /** YouTube id/URL (incl. /shorts/ links), or "demo" for placeholder. */
   videoId: string;
+  /** Vertical Short — plays in a portrait 9:16 frame. */
+  short?: boolean;
+}
+export interface NfRow {
+  id: string;
+  title: string;
+  explore?: boolean;
+  top10?: boolean;
+  /** Render vertical (9:16) cards for a Shorts rail. */
+  shorts?: boolean;
+  cards: readonly NfCard[];
 }
 
-export interface ScrubFrame {
-  image?: string;
-  /** Dim overlay-only frame (no image). */
-  veil?: boolean;
+export interface FootageVideo {
+  poster: string;
+  src: string;
+  chip: string;
+  title: string;
+  body: string;
+  tag: string;
 }
+
+export interface IgPost {
+  image: string;
+  type: "photo" | "reel";
+  likes: number;
+  comments: number;
+  caption: string;
+  url: string;
+}
+
+export interface FbPost {
+  image: string;
+  caption: string;
+  when: string;
+  fbVideo?: boolean;
+  url: string;
+}
+
+export interface LiPost {
+  text: string;
+  bold: string;
+  rest: string;
+  tags: string;
+  image: string;
+  reactions: readonly ("like" | "clap" | "heart")[];
+  count: number;
+  time: string;
+  url: string;
+}
+
+export interface WallCard {
+  platform: "youtube" | "instagram" | "facebook" | "linkedin";
+  image: string;
+  ratio: string;
+  handle: string;
+  caption: string;
+  /** For YouTube. */
+  videoId?: string;
+  /** For IG/FB/LI embeds. */
+  url?: string;
+  fbVideo?: boolean;
+}
+
+const SAMPLE_MP4 = "https://www.w3schools.com/html/mov_bbb.mp4";
 
 export const mediaContent = {
   hero: {
     image: { src: img.mediaTop, alt: "Life at Venus Foundation" },
     breadcrumb: "Media",
     eyebrow: "Our film · 2025",
-    words: [
-      { text: "Empower.", tone: "" },
-      { text: "Elevate.", tone: "" },
-      { text: "Evolve.", tone: "" },
-    ],
+    words: [{ text: "Empower." }, { text: "Elevate." }, { text: "Evolve." }],
     subtitle:
       "Visual stories travel faster than words — a single film can spark awareness worldwide. Watch how change happens, heart to heart.",
-    videoId: "demo",
+    videoId: syncedFilms[0]?.videoId ?? syncedShorts[0]?.videoId ?? "demo",
   },
 
-  stories: {
-    eyebrow: "Video stories",
-    title: "Short films from the ground, in your hand.",
-    items: [
+  netflix: {
+    badge: "Venus Originals",
+    title: "Browse our world of stories.",
+    subscribeUrl: YT,
+    rows: [
       {
-        image: img.treePlantation,
-        meta: "Climate · 0:48",
-        title: "Planting Tomorrow's Shade",
-        videoId: "demo",
+        // Shorts rail — vertical cards that play inline in a 9:16 frame.
+        // Add more: paste each Short link as `videoId` (e.g. a /shorts/<id> URL)
+        // and keep `short: true`. The thumbnail is pulled automatically.
+        id: "nf-shorts",
+        title: "Shorts",
+        shorts: true,
+        explore: true,
+        cards: syncedShorts,
       },
       {
+        id: "nf-row1",
+        title: "Trending now",
+        explore: true,
+        cards: allVideos.slice(0, 10),
+      },
+      {
+        id: "nf-row2",
+        title: "Top 10 this month",
+        top10: true,
+        cards: syncedShorts.slice(0, 10),
+      },
+      {
+        id: "nf-row3",
+        title: "Stories by cause",
+        explore: true,
+        cards: allVideos.slice(8),
+      },
+    ] satisfies NfRow[],
+  },
+
+  footage: {
+    badge: "Our footage",
+    title: "Raw moments, straight from the field.",
+    body: "Unedited clips captured by our volunteers — the real texture of a day in service.",
+    videos: [
+      {
+        poster: img.foodDistribution,
+        src: SAMPLE_MP4,
+        chip: "Zero Hunger",
+        title: "A morning at the meal drive",
+        body: "Volunteers serving fresh, warm meals to children across Panchkula.",
+        tag: "Filmed Nov 2025 · 0:48",
+      },
+      {
+        poster: img.treePlantation,
+        src: SAMPLE_MP4,
+        chip: "Life on Land",
+        title: "200 saplings in one afternoon",
+        body: "Our plantation drive, captured as it happened — every hand counts.",
+        tag: "Filmed Oct 2025 · 1:05",
+      },
+    ] satisfies FootageVideo[],
+  },
+
+  instagram: {
+    handle: IG_HANDLE,
+    name: "Moments from our feed",
+    profileUrl: IG,
+    posts: [
+      {
         image: img.foodDistribution,
-        meta: "Hunger · 1:12",
-        title: "Meals That Mean More",
-        videoId: "demo",
+        type: "photo",
+        likes: 482,
+        comments: 36,
+        caption: "Warm meals, warmer hearts. Today's drive reached 120 children 🧡",
+        url: "demo",
+      },
+      {
+        image: img.treePlantation,
+        type: "reel",
+        likes: 763,
+        comments: 58,
+        caption: "Reel: 200 saplings, one green morning 🌱",
+        url: "demo",
       },
       {
         image: img.bloodDonation,
-        meta: "Health · 0:55",
-        title: "Hope, One Donor at a Time",
-        videoId: "demo",
+        type: "photo",
+        likes: 391,
+        comments: 24,
+        caption: "Every drop counts. Thank you to our 60+ donors today.",
+        url: "demo",
       },
       {
         image: img.communities,
-        meta: "Community · 1:30",
-        title: "Listening Before Leading",
+        type: "photo",
+        likes: 528,
+        comments: 41,
+        caption: "Listening before leading — community first, always.",
+        url: "demo",
+      },
+    ] satisfies IgPost[],
+  },
+
+  facebook: {
+    title: "Photos & moments from our page.",
+    pageUrl: FB,
+    posts: [
+      {
+        image: img.foodDistribution,
+        caption: "Meal drive — watch the highlights",
+        when: "Video · 2 weeks ago",
+        fbVideo: true,
+        url: "demo",
+      },
+      {
+        image: img.communities,
+        caption: "Walking with communities, together",
+        when: "Photo · 3 weeks ago",
+        url: "demo",
+      },
+      {
+        image: img.treePlantation,
+        caption: "200 saplings planted this season",
+        when: "Photo · 1 month ago",
+        url: "demo",
+      },
+    ] satisfies FbPost[],
+  },
+
+  linkedin: {
+    title: "Updates for our partners & supporters.",
+    pageUrl: LI,
+    posts: [
+      {
+        text: "Proud to share that our plantation drive crossed ",
+        bold: "200 trees",
+        rest: " this season. ",
+        tags: "#SustainableFuture #CSR",
+        image: img.treePlantation,
+        reactions: ["like", "clap", "heart"],
+        count: 128,
+        time: "2w",
+        url: LI,
+      },
+      {
+        text: "Our blood donation camp with PGI Chandigarh welcomed ",
+        bold: "60+ donors",
+        rest: ". Gratitude to every volunteer. ",
+        tags: "#CommunityHealth",
+        image: img.bloodDonation,
+        reactions: ["like", "heart"],
+        count: 94,
+        time: "1mo",
+        url: LI,
+      },
+      {
+        text: "From dreams to direction — our career-guidance circles reached ",
+        bold: "5 schools",
+        rest: " this term. ",
+        tags: "#Education #YouthEmpowerment",
+        image: img.communities,
+        reactions: ["like", "clap"],
+        count: 156,
+        time: "1mo",
+        url: LI,
+      },
+    ] satisfies LiPost[],
+  },
+
+  wall: {
+    eyebrow: "All our socials",
+    title: "One feed. Every story.",
+    body: "Everything we post across YouTube, Instagram, Facebook and LinkedIn — in one place, playing right here.",
+    cards: [
+      {
+        platform: "instagram",
+        image: img.foodDistribution,
+        ratio: "9/14",
+        handle: IG_HANDLE,
+        caption: "Warm meals, warmer hearts 🧡",
+        url: "demo",
+      },
+      {
+        platform: "youtube",
+        image: img.mediaTop,
+        ratio: "16/9",
+        handle: "Venus Foundation",
+        caption: "Seeds of Change — 2025 film",
         videoId: "demo",
       },
       {
-        image: img.planting,
-        meta: "Education · 0:40",
-        title: "Seeds of a Classroom",
+        platform: "facebook",
+        image: img.communities,
+        ratio: "4/3",
+        handle: "Venus Foundation",
+        caption: "Walking with communities",
+        url: "demo",
+      },
+      {
+        platform: "linkedin",
+        image: img.treePlantation,
+        ratio: "4/5",
+        handle: "Venus Foundation",
+        caption: "200 trees this season · #CSR",
+        url: LI,
+      },
+      {
+        platform: "instagram",
+        image: img.bloodDonation,
+        ratio: "1/1",
+        handle: IG_HANDLE,
+        caption: "60+ donors today 🩸",
+        url: "demo",
+      },
+      {
+        platform: "youtube",
+        image: img.treePlantation,
+        ratio: "16/9",
+        handle: "Venus Foundation",
+        caption: "Planting Tomorrow's Shade",
         videoId: "demo",
       },
-    ] satisfies VideoStory[],
+      {
+        platform: "facebook",
+        image: img.topImg,
+        ratio: "4/5",
+        handle: "Venus Foundation",
+        caption: "A day in service — watch",
+        fbVideo: true,
+        url: "demo",
+      },
+      {
+        platform: "instagram",
+        image: img.planting,
+        ratio: "9/14",
+        handle: IG_HANDLE,
+        caption: "Reel: seeds of a classroom 🌱",
+        url: "demo",
+      },
+      {
+        platform: "linkedin",
+        image: img.blogSlider,
+        ratio: "4/3",
+        handle: "Venus Foundation",
+        caption: "Career circles reached 5 schools",
+        url: LI,
+      },
+    ] satisfies WallCard[],
   },
 
   scrub: {
@@ -72,7 +359,7 @@ export const mediaContent = {
       { image: img.treePlantation },
       { image: img.foodDistribution },
       { image: img.mediaTop },
-    ] satisfies ScrubFrame[],
+    ],
     texts: [
       "Every smile we share,",
       "every seed we plant,",
@@ -96,16 +383,19 @@ export const mediaContent = {
     ] satisfies ImageRef[],
   },
 
+  follow: [
+    { platform: "yt", label: "YouTube", url: YT, icon: "youtube" as const },
+    { platform: "ig", label: "Instagram", url: IG, icon: "instagram" as const },
+    { platform: "li", label: "LinkedIn", url: LI, icon: "linkedin" as const },
+    { platform: "fb", label: "Facebook", url: FB, icon: "facebook" as const },
+  ],
+
   cta: {
     image: { src: img.seedsCta, alt: "" },
     title: "Got a story worth sharing?",
     body: "Follow our journey on social media, or reach out to feature your collaboration with Venus Foundation.",
     actions: [
-      {
-        label: "Watch on YouTube",
-        href: "https://www.youtube.com/@FoundationVenus",
-        variant: "gold",
-      },
+      { label: "Watch on YouTube", href: YT, variant: "gold" },
       { label: "Get in touch", to: "/contact", variant: "ghost", onDark: true },
     ] satisfies Cta[],
   },

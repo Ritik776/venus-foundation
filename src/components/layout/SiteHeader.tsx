@@ -51,6 +51,7 @@ export function SiteHeader() {
   useEffect(() => {
     document.body.setAttribute("data-page", page);
     document.body.classList.toggle("hero-dark", HERO_DARK.has(page));
+    document.body.classList.toggle("media-theme", page === "media");
   }, [page]);
 
   useEffect(() => {

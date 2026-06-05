@@ -4,6 +4,13 @@ export type IconName =
   | "arrow-right"
   | "arrow-left"
   | "arrow-up"
+  | "chevron-left"
+  | "chevron-right"
+  | "expand"
+  | "video"
+  | "heart-fill"
+  | "comment"
+  | "circle"
   | "play"
   | "heart"
   | "users"
@@ -34,6 +41,21 @@ const ICONS: Record<IconName, PathSpec> = {
   "arrow-right": { stroke: ["M5 12h14M13 6l6 6-6 6"] },
   "arrow-left": { stroke: ["M19 12H5M11 18l-6-6 6-6"] },
   "arrow-up": { stroke: ["M12 19V5M5 12l7-7 7 7"] },
+  "chevron-left": { stroke: ["M15 18l-6-6 6-6"] },
+  "chevron-right": { stroke: ["M9 6l6 6-6 6"] },
+  expand: { stroke: ["M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"] },
+  video: {
+    stroke: ["M0 0"],
+    extra: () => (
+      <>
+        <polygon points="23 7 16 12 23 17 23 7" />
+        <rect x="1" y="5" width="15" height="14" rx="2" />
+      </>
+    ),
+  },
+  "heart-fill": { fill: ["M12 21s-8-5-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 6-8 11-8 11z"] },
+  comment: { fill: ["M21 11.5a8.5 8.5 0 01-12 7.7L3 21l1.8-6A8.5 8.5 0 1121 11.5z"] },
+  circle: { fill: ["M12 2a10 10 0 100 20 10 10 0 000-20z"] },
   play: { fill: ["M8 5v14l11-7z"] },
   heart: {
     stroke: [

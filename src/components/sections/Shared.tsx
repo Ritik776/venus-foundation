@@ -164,7 +164,7 @@ export function Cta2Band({ data }: { data: Cta2Data }) {
 
 interface WordmarkWord {
   text: string;
-  tone: string;
+  tone?: string;
 }
 
 interface InnerHeroProps {

@@ -1,5 +1,15 @@
 import { useLightbox } from "@/components/layout/LightboxContext";
-import { PhotoMasonry, ScrubSequence, VideoStoriesRail } from "@/components/sections/MediaSections";
+import {
+  FacebookFeed,
+  FieldFootage,
+  FollowStrip,
+  InstagramFeed,
+  LinkedInFeed,
+  NetflixBrowser,
+  PhotoMasonry,
+  ScrubSequence,
+  SocialWall,
+} from "@/components/sections/MediaSections";
 import { Cta2Band, InnerHero } from "@/components/sections/Shared";
 import { mediaContent } from "@/content/media";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
@@ -8,7 +18,7 @@ export function MediaPage() {
   useDocumentMeta({
     title: "Media & Updates",
     description:
-      "Films, photos and press from Venus Foundation. Visual stories of care, kindness and everyday acts that connect communities across Panchkula and Haryana.",
+      "Films, photos and press from Venus Foundation. Watch our story across YouTube, Instagram, Facebook and LinkedIn — all in one place.",
   });
 
   const { open } = useLightbox();
@@ -21,11 +31,17 @@ export function MediaPage() {
         eyebrow={hero.eyebrow}
         words={hero.words}
         subtitle={hero.subtitle}
-        onPlay={() => open(hero.videoId)}
+        onPlay={() => open({ kind: "youtube", id: hero.videoId })}
       />
-      <VideoStoriesRail />
+      <NetflixBrowser />
+      <FieldFootage />
+      <InstagramFeed />
+      <FacebookFeed />
+      <LinkedInFeed />
+      <SocialWall />
       <ScrubSequence />
       <PhotoMasonry />
+      <FollowStrip />
       <Cta2Band data={mediaContent.cta} />
     </>
   );

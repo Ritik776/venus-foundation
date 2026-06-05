@@ -205,13 +205,13 @@ export function VideoShowcase() {
         <Reveal
           variant="clip"
           className="video-stage img-mask"
-          onClick={() => open(v.videoId)}
+          onClick={() => open({ kind: "youtube", id: v.videoId })}
           role="button"
           tabIndex={0}
           aria-label="Play film"
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
-              open(v.videoId);
+              open({ kind: "youtube", id: v.videoId });
             }
           }}
         >

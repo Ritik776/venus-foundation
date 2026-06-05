@@ -53,7 +53,7 @@ export const mobileNavLinks: { no: string; label: string; to: string; dataNav: s
 
 export const socials: SocialLink[] = [
   { label: "Facebook", href: "https://www.facebook.com/foundationvenus/", icon: "facebook" },
-  { label: "Instagram", href: "https://www.instagram.com/venusfoundation_/", icon: "instagram" },
+  { label: "Instagram", href: "https://www.instagram.com/venus.foundation", icon: "instagram" },
   { label: "X", href: "https://x.com/foundationvenus", icon: "x" },
   {
     label: "LinkedIn",
