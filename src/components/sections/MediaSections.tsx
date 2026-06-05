@@ -5,11 +5,10 @@ import { Eyebrow } from "@/components/primitives/Eyebrow";
 import { Icon } from "@/components/primitives/Icon";
 import { Reveal, type RevealDelay } from "@/components/primitives/Reveal";
 import { SplitText } from "@/components/primitives/SplitText";
-import type { YtVideo } from "@/content/generated/youtube";
 import { mediaContent, type NfCard, type NfRow, type WallCard } from "@/content/media";
 import { useDragScroll, useRailControls } from "@/hooks/usePointerEffects";
 import { useScrub } from "@/hooks/useScrollScenes";
-import { useYouTubeVideos } from "@/hooks/useYouTubeVideos";
+import type { YtVideo } from "@/hooks/useYouTubeVideos";
 
 const m = mediaContent;
 
@@ -135,9 +134,9 @@ function buildRows(videos: YtVideo[]): NfRow[] {
   ];
 }
 
-export function NetflixBrowser() {
+export function NetflixBrowser({ videos }: { videos: YtVideo[] }) {
   const { netflix: nf } = m;
-  const rows = buildRows(useYouTubeVideos());
+  const rows = buildRows(videos);
   return (
     <section className="pad nf-surface grain" id="watch">
       <div className="wrap">
@@ -160,9 +159,13 @@ export function NetflixBrowser() {
           </a>
         </div>
       </div>
-      {rows.map((row) => (
-        <NfRailRow row={row} key={row.id} />
-      ))}
+      {videos.length === 0 ? (
+        <div className="wrap">
+          <p style={{ color: "#b3aa99", marginTop: 8 }}>Connect the channel to load videos.</p>
+        </div>
+      ) : (
+        rows.map((row) => <NfRailRow row={row} key={row.id} />)
+      )}
     </section>
   );
 }

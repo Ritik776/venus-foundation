@@ -8,7 +8,8 @@
  * Set YOUTUBE_API_KEY in the host's environment variables (server-side secret).
  */
 const API = "https://www.googleapis.com/youtube/v3";
-const CHANNEL_ID = "UCoybgRV1udX2-d3jjuuigMw";
+/** Public channel id — override with the YOUTUBE_CHANNEL_ID env var if it ever changes. */
+const CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID || "UCoybgRV1udX2-d3jjuuigMw";
 const SHORT_MAX_SECONDS = 180;
 
 function isoToSeconds(iso) {

@@ -131,15 +131,13 @@ The app is built to score top marks on **Accessibility, Best Practices and SEO**
 
 ## Dynamic video sync (headless-CMS style)
 
-The Media page treats the **YouTube channel as the content source** — upload a video and it appears on the site **with no rebuild**:
+The Media page treats the **YouTube channel as the content source** — upload a video and it appears on the site **with no rebuild**, fetched live (no snapshot, no fallback):
 
 - **`/api/videos`** (a serverless function in `api/videos.js`) fetches the channel server-side using `YOUTUBE_API_KEY`, classifies Shorts, and returns JSON. The response is **CDN-cached** (`s-maxage=6h, stale-while-revalidate=1d`), so it's fast and uses almost no API quota regardless of traffic. The key stays **server-side — never shipped to the browser**.
-- The site (`useYouTubeVideos`) shows the cached/snapshot list instantly, then revalidates from `/api/videos`. New uploads show up on the next visit.
-- **Fallback:** if the endpoint is absent (e.g. local `vite dev`) or errors, it uses the committed snapshot in `src/content/generated/youtube.ts`, so the page always works.
+- The site (`useYouTubeVideos`) fetches `/api/videos` at runtime. New uploads show up on the next visit, automatically.
+- **No key configured → no videos shown.** There is intentionally no baked-in fallback list; the channel is the single source of truth.
 
-**Deploy (Vercel):** import the repo, add an env var **`YOUTUBE_API_KEY`** (restrict it to *YouTube Data API v3*), deploy. `vercel.json` handles SPA routing and leaves `/api/*` to the function.
-
-**Optional:** `npm run sync:shorts` refreshes the static snapshot (the offline fallback) — handy if you don't deploy the serverless function.
+**Deploy (Vercel):** import the repo, add an env var **`YOUTUBE_API_KEY`** (restrict it to *YouTube Data API v3*; optionally `YOUTUBE_CHANNEL_ID`), deploy. `vercel.json` handles SPA routing and leaves `/api/*` to the function.
 
 ## License
 

@@ -1,9 +1,5 @@
 import type { Cta, ImageRef } from "@/types/content";
-import { youtubeVideos } from "./generated/youtube";
 import { img } from "./images";
-
-/** Default "play film" target from the committed snapshot (latest long-form, else first). */
-const heroVideoId = (youtubeVideos.find((v) => !v.short) ?? youtubeVideos[0])?.id ?? "demo";
 
 const YT = "https://www.youtube.com/@FoundationVenus";
 const IG = "https://www.instagram.com/venus.foundation";
@@ -92,7 +88,6 @@ export const mediaContent = {
     words: [{ text: "Empower." }, { text: "Elevate." }, { text: "Evolve." }],
     subtitle:
       "Visual stories travel faster than words — a single film can spark awareness worldwide. Watch how change happens, heart to heart.",
-    videoId: heroVideoId,
   },
 
   netflix: {

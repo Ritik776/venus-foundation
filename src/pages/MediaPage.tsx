@@ -13,6 +13,9 @@ import {
 import { Cta2Band, InnerHero } from "@/components/sections/Shared";
 import { mediaContent } from "@/content/media";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
+import { useYouTubeVideos } from "@/hooks/useYouTubeVideos";
+
+const CHANNEL_URL = "https://www.youtube.com/@FoundationVenus";
 
 export function MediaPage() {
   useDocumentMeta({
@@ -23,6 +26,17 @@ export function MediaPage() {
 
   const { open } = useLightbox();
   const { hero } = mediaContent;
+  const { videos } = useYouTubeVideos();
+  const film = videos.find((v) => !v.short) ?? videos[0];
+
+  const playHero = () => {
+    if (film) {
+      open({ kind: "youtube", id: film.id, short: film.short });
+    } else {
+      window.open(CHANNEL_URL, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <>
       <InnerHero
@@ -31,9 +45,9 @@ export function MediaPage() {
         eyebrow={hero.eyebrow}
         words={hero.words}
         subtitle={hero.subtitle}
-        onPlay={() => open({ kind: "youtube", id: hero.videoId })}
+        onPlay={playHero}
       />
-      <NetflixBrowser />
+      <NetflixBrowser videos={videos} />
       <FieldFootage />
       <InstagramFeed />
       <FacebookFeed />
