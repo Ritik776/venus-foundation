@@ -129,6 +129,18 @@ npx lighthouse http://localhost:4173 --preset=desktop --view
 
 The app is built to score top marks on **Accessibility, Best Practices and SEO**. **Performance** depends on the third-party CDN imagery and web fonts; to reach a perfect mobile performance score, self-host and optimise those assets as noted above.
 
+## Dynamic video sync (headless-CMS style)
+
+The Media page treats the **YouTube channel as the content source** — upload a video and it appears on the site **with no rebuild**:
+
+- **`/api/videos`** (a serverless function in `api/videos.js`) fetches the channel server-side using `YOUTUBE_API_KEY`, classifies Shorts, and returns JSON. The response is **CDN-cached** (`s-maxage=6h, stale-while-revalidate=1d`), so it's fast and uses almost no API quota regardless of traffic. The key stays **server-side — never shipped to the browser**.
+- The site (`useYouTubeVideos`) shows the cached/snapshot list instantly, then revalidates from `/api/videos`. New uploads show up on the next visit.
+- **Fallback:** if the endpoint is absent (e.g. local `vite dev`) or errors, it uses the committed snapshot in `src/content/generated/youtube.ts`, so the page always works.
+
+**Deploy (Vercel):** import the repo, add an env var **`YOUTUBE_API_KEY`** (restrict it to *YouTube Data API v3*), deploy. `vercel.json` handles SPA routing and leaves `/api/*` to the function.
+
+**Optional:** `npm run sync:shorts` refreshes the static snapshot (the offline fallback) — handy if you don't deploy the serverless function.
+
 ## License
 
 © Venus Foundation. A CSR initiative by Venus Remedies. All rights reserved.
