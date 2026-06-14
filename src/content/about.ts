@@ -20,11 +20,11 @@ export interface TeamMember {
 export const aboutContent = {
   hero: {
     image: { src: img.topImg, alt: "Venus Foundation community" },
-    breadcrumb: "About Us",
-    eyebrow: "Who we are",
-    title: "Hope begins with equal access for all.",
+    breadcrumb: "Our Story",
+    eyebrow: "Our Story",
+    title: "Rooted in care, growing with purpose.",
     subtitle:
-      "We are a non-profit organization working to build an inclusive India by ensuring access to nutritious food, clean water, healthcare, education and equal opportunities for all.",
+      "Who we are, the people who carry the work forward, and the partners who grow alongside us.",
     pills: [
       { value: "9", label: "seeds of change" },
       { value: "750+", label: "students reached" },

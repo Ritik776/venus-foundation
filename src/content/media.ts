@@ -5,26 +5,40 @@ const YT = "https://www.youtube.com/@FoundationVenus";
 const IG = "https://www.instagram.com/venus.foundation";
 const FB = "https://www.facebook.com/foundationvenus/";
 const LI = "https://www.linkedin.com/company/foundationvenus/";
-const IG_HANDLE = "@venus.foundation";
+const IG_HANDLE = "venus.foundation";
 
-export interface NfCard {
+/** Compact Netflix-style rail card (Instagram reels, LinkedIn). */
+export interface RailCard {
   image: string;
-  title?: string;
+  title: string;
   tags?: readonly string[];
   badge?: string;
-  /** YouTube id/URL (incl. /shorts/ links), or "demo" for placeholder. */
-  videoId: string;
-  /** Vertical Short — plays in a portrait 9:16 frame. */
-  short?: boolean;
+  /** Permalink to open in the lightbox (live cards); falls back to a placeholder. */
+  url?: string;
 }
-export interface NfRow {
-  id: string;
-  title: string;
-  explore?: boolean;
-  top10?: boolean;
-  /** Render vertical (9:16) cards for a Shorts rail. */
-  shorts?: boolean;
-  cards: readonly NfCard[];
+
+/** Instagram feed post card (full IG-style UI). */
+export interface IgFeedPost {
+  image: string;
+  /** Line shown under the username (location or context). */
+  sub: string;
+  likes: number;
+  caption: string;
+  comments: number;
+  time: string;
+  url: string;
+}
+
+/** Facebook feed post card (full FB-style UI). */
+export interface FbFeedPost {
+  image: string;
+  text: string;
+  video?: boolean;
+  reactions: readonly ("like" | "love" | "care")[];
+  count: number;
+  comments: number;
+  time: string;
+  url: string;
 }
 
 export interface FootageVideo {
@@ -34,35 +48,6 @@ export interface FootageVideo {
   title: string;
   body: string;
   tag: string;
-}
-
-export interface IgPost {
-  image: string;
-  type: "photo" | "reel";
-  likes: number;
-  comments: number;
-  caption: string;
-  url: string;
-}
-
-export interface FbPost {
-  image: string;
-  caption: string;
-  when: string;
-  fbVideo?: boolean;
-  url: string;
-}
-
-export interface LiPost {
-  text: string;
-  bold: string;
-  rest: string;
-  tags: string;
-  image: string;
-  reactions: readonly ("like" | "clap" | "heart")[];
-  count: number;
-  time: string;
-  url: string;
 }
 
 export interface WallCard {
@@ -90,10 +75,207 @@ export const mediaContent = {
       "Visual stories travel faster than words — a single film can spark awareness worldwide. Watch how change happens, heart to heart.",
   },
 
-  netflix: {
-    badge: "Venus Originals",
-    title: "Browse our world of stories.",
-    subscribeUrl: YT,
+  /* ---------- WATCH & FOLLOW: every channel, one section ---------- */
+  watch: {
+    eyebrow: "Watch & follow",
+    title: "Every story, on every channel.",
+    handle: IG_HANDLE,
+    channels: { youtube: YT, instagram: IG, facebook: FB, linkedin: LI },
+
+    /*
+     * Curated Instagram content (used until IG_ACCESS_TOKEN is configured —
+     * then the live /api/instagram feed overrides all of this automatically).
+     *
+     * To make a card open the REAL post/reel, paste its permalink into `url`,
+     * e.g. url: "https://www.instagram.com/reel/ABC123/". The card's image &
+     * caption below are what shows on the rail; clicking embeds the live post.
+     * Leave url: "" to show the branded "post coming soon" placeholder.
+     */
+
+    /* Instagram Reels — vertical cards (real permalinks; labels are curated). */
+    igReels: [
+      {
+        image: img.foodDistribution,
+        title: "Warm meals, warmer hearts",
+        tags: ["Reel"],
+        badge: "Reel",
+        url: "https://www.instagram.com/reel/DY4MbIWBMbt/",
+      },
+      {
+        image: img.treePlantation,
+        title: "200 saplings, one morning",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DYxEAC-hmxR/",
+      },
+      {
+        image: img.planting,
+        title: "Seeds of a classroom",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DYCWpEkB0sk/",
+      },
+      {
+        image: img.bloodDonation,
+        title: "Every drop counts",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DX1YQTQBll6/",
+      },
+      {
+        image: img.communities,
+        title: "Community first",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DXeULnJgeO5/",
+      },
+      {
+        image: img.topImg,
+        title: "Little moments",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DXJpXRFAXIc/",
+      },
+      {
+        image: img.blogSlider,
+        title: "Spreading hope",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DWyhtnsAfWy/",
+      },
+      {
+        image: img.mediaTop,
+        title: "Smiles that say it all",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DWjFPcIAaQq/",
+      },
+      {
+        image: img.foodDistribution,
+        title: "A plate full of hope",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DWWFbcYAWJG/",
+      },
+      {
+        image: img.treePlantation,
+        title: "One sapling at a time",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DWOaem3AQdT/",
+      },
+      {
+        image: img.communities,
+        title: "Together for change",
+        tags: ["Reel"],
+        url: "https://www.instagram.com/reel/DVvuJ_GhT2u/",
+      },
+    ] satisfies RailCard[],
+
+    /* Instagram Posts — full feed cards. */
+    igPosts: [
+      {
+        image: img.foodDistribution,
+        sub: "Panchkula, India",
+        likes: 482,
+        caption:
+          "Warm meals, warmer hearts. Today's drive reached 120 children across Panchkula 🧡",
+        comments: 36,
+        time: "2 days ago",
+        url: "https://www.instagram.com/p/DVlaVK-Bl1f/",
+      },
+      {
+        image: img.treePlantation,
+        sub: "Tree plantation drive",
+        likes: 763,
+        caption: "200 saplings, one green morning. Here's to a greener tomorrow 🌱",
+        comments: 58,
+        time: "5 days ago",
+        url: "",
+      },
+      {
+        image: img.bloodDonation,
+        sub: "Blood donation camp",
+        likes: 391,
+        caption: "Every drop counts. Thank you to our 60+ donors today 🩸",
+        comments: 24,
+        time: "1 week ago",
+        url: "",
+      },
+      {
+        image: img.communities,
+        sub: "Community first",
+        likes: 528,
+        caption: "Listening before leading — community always comes first.",
+        comments: 41,
+        time: "2 weeks ago",
+        url: "",
+      },
+      {
+        image: img.blogSlider,
+        sub: "Spreading hope",
+        likes: 350,
+        caption: "Small moments of care that connect us all 💫",
+        comments: 19,
+        time: "3 weeks ago",
+        url: "",
+      },
+    ] satisfies IgFeedPost[],
+
+    /* Facebook — full feed cards. */
+    fbPosts: [
+      {
+        image: img.foodDistribution,
+        text: "Watch the highlights from today's meal drive — 120 children served with a smile. 🧡",
+        video: true,
+        reactions: ["like", "love", "care"],
+        count: 214,
+        comments: 32,
+        time: "2w",
+        url: "demo",
+      },
+      {
+        image: img.communities,
+        text: "Walking with communities, together. Every conversation begins with listening. 🤝",
+        reactions: ["like", "love"],
+        count: 168,
+        comments: 21,
+        time: "3w",
+        url: "demo",
+      },
+      {
+        image: img.treePlantation,
+        text: "200 saplings planted this season 🌳 Thank you to every volunteer who showed up for the planet.",
+        reactions: ["like", "care"],
+        count: 302,
+        comments: 47,
+        time: "1mo",
+        url: "demo",
+      },
+      {
+        image: img.bloodDonation,
+        text: "Our blood donation camp with PGI Chandigarh welcomed 60+ donors. Heroes, every one of you. 🩸",
+        reactions: ["like", "love", "care"],
+        count: 189,
+        comments: 28,
+        time: "1mo",
+        url: "demo",
+      },
+      {
+        image: img.topImg,
+        text: "A day in service — captured. This is what showing up looks like. 🎬",
+        video: true,
+        reactions: ["like", "love"],
+        count: 256,
+        comments: 39,
+        time: "1mo",
+        url: "demo",
+      },
+    ] satisfies FbFeedPost[],
+
+    /* LinkedIn — compact cards. */
+    liCards: [
+      { image: img.treePlantation, title: "200 trees this season · #CSR", tags: ["128 reactions"] },
+      { image: img.bloodDonation, title: "60+ donors at our camp", tags: ["94 reactions"] },
+      {
+        image: img.communities,
+        title: "Career circles reached 5 schools",
+        tags: ["156 reactions"],
+      },
+      { image: img.blogSlider, title: "Our impact report 2025", tags: ["210 reactions"] },
+      { image: img.mediaTop, title: "Partnering for change", tags: ["88 reactions"] },
+    ] satisfies RailCard[],
   },
 
   footage: {
@@ -120,112 +302,6 @@ export const mediaContent = {
     ] satisfies FootageVideo[],
   },
 
-  instagram: {
-    handle: IG_HANDLE,
-    name: "Moments from our feed",
-    profileUrl: IG,
-    posts: [
-      {
-        image: img.foodDistribution,
-        type: "photo",
-        likes: 482,
-        comments: 36,
-        caption: "Warm meals, warmer hearts. Today's drive reached 120 children 🧡",
-        url: "demo",
-      },
-      {
-        image: img.treePlantation,
-        type: "reel",
-        likes: 763,
-        comments: 58,
-        caption: "Reel: 200 saplings, one green morning 🌱",
-        url: "demo",
-      },
-      {
-        image: img.bloodDonation,
-        type: "photo",
-        likes: 391,
-        comments: 24,
-        caption: "Every drop counts. Thank you to our 60+ donors today.",
-        url: "demo",
-      },
-      {
-        image: img.communities,
-        type: "photo",
-        likes: 528,
-        comments: 41,
-        caption: "Listening before leading — community first, always.",
-        url: "demo",
-      },
-    ] satisfies IgPost[],
-  },
-
-  facebook: {
-    title: "Photos & moments from our page.",
-    pageUrl: FB,
-    posts: [
-      {
-        image: img.foodDistribution,
-        caption: "Meal drive — watch the highlights",
-        when: "Video · 2 weeks ago",
-        fbVideo: true,
-        url: "demo",
-      },
-      {
-        image: img.communities,
-        caption: "Walking with communities, together",
-        when: "Photo · 3 weeks ago",
-        url: "demo",
-      },
-      {
-        image: img.treePlantation,
-        caption: "200 saplings planted this season",
-        when: "Photo · 1 month ago",
-        url: "demo",
-      },
-    ] satisfies FbPost[],
-  },
-
-  linkedin: {
-    title: "Updates for our partners & supporters.",
-    pageUrl: LI,
-    posts: [
-      {
-        text: "Proud to share that our plantation drive crossed ",
-        bold: "200 trees",
-        rest: " this season. ",
-        tags: "#SustainableFuture #CSR",
-        image: img.treePlantation,
-        reactions: ["like", "clap", "heart"],
-        count: 128,
-        time: "2w",
-        url: LI,
-      },
-      {
-        text: "Our blood donation camp with PGI Chandigarh welcomed ",
-        bold: "60+ donors",
-        rest: ". Gratitude to every volunteer. ",
-        tags: "#CommunityHealth",
-        image: img.bloodDonation,
-        reactions: ["like", "heart"],
-        count: 94,
-        time: "1mo",
-        url: LI,
-      },
-      {
-        text: "From dreams to direction — our career-guidance circles reached ",
-        bold: "5 schools",
-        rest: " this term. ",
-        tags: "#Education #YouthEmpowerment",
-        image: img.communities,
-        reactions: ["like", "clap"],
-        count: 156,
-        time: "1mo",
-        url: LI,
-      },
-    ] satisfies LiPost[],
-  },
-
   wall: {
     eyebrow: "All our socials",
     title: "One feed. Every story.",
@@ -235,7 +311,7 @@ export const mediaContent = {
         platform: "instagram",
         image: img.foodDistribution,
         ratio: "9/14",
-        handle: IG_HANDLE,
+        handle: `@${IG_HANDLE}`,
         caption: "Warm meals, warmer hearts 🧡",
         url: "demo",
       },
@@ -267,7 +343,7 @@ export const mediaContent = {
         platform: "instagram",
         image: img.bloodDonation,
         ratio: "1/1",
-        handle: IG_HANDLE,
+        handle: `@${IG_HANDLE}`,
         caption: "60+ donors today 🩸",
         url: "demo",
       },
@@ -292,7 +368,7 @@ export const mediaContent = {
         platform: "instagram",
         image: img.planting,
         ratio: "9/14",
-        handle: IG_HANDLE,
+        handle: `@${IG_HANDLE}`,
         caption: "Reel: seeds of a classroom 🌱",
         url: "demo",
       },

@@ -2,17 +2,10 @@ import {
   HappyWall,
   HomeCta,
   ImmersiveHero,
-  InvolveSection,
-  JourneySection,
-  PrinciplesSection,
-  SeedsPreviewRail,
-  StatsSection,
-  VideoShowcase,
-  VoicesSection,
-  WelcomeHero,
+  ImpactSection,
+  SparkJourney,
+  // WelcomeHero,
 } from "@/components/sections/HomeSections";
-import { DidYouKnowBand, MarqueeBand } from "@/components/sections/Shared";
-import { homeContent } from "@/content/home";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export function HomePage() {
@@ -25,17 +18,10 @@ export function HomePage() {
   return (
     <>
       <ImmersiveHero />
-      <WelcomeHero />
-      <MarqueeBand items={homeContent.marquee} />
-      <DidYouKnowBand data={homeContent.didYouKnow} />
-      <JourneySection />
-      <StatsSection />
-      <VideoShowcase />
-      <PrinciplesSection />
-      <SeedsPreviewRail />
+      {/* <WelcomeHero /> */}
+      <SparkJourney />
+      <ImpactSection />
       <HappyWall />
-      <VoicesSection />
-      <InvolveSection />
       <HomeCta />
     </>
   );

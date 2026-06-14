@@ -26,9 +26,48 @@ export const site = {
 } as const;
 
 export const navLinks: NavLink[] = [
-  { label: "Home", to: "/", dataNav: "home" },
-  { label: "About", to: "/about", dataNav: "about" },
-  { label: "Our Seeds", to: "/our-seeds", dataNav: "seeds" },
+  {
+    label: "Our Story",
+    to: "/our-story",
+    dataNav: "story",
+    dropdown: [
+      { label: "About Us", description: "Who we are & what we believe", to: "/our-story#about" },
+      {
+        label: "Meet the Changemakers",
+        description: "The people behind the work",
+        to: "/our-story#changemakers",
+      },
+      { label: "Partners", description: "Who we grow with", to: "/our-story#partners" },
+    ],
+  },
+  {
+    label: "Our Seeds",
+    to: "/our-seeds",
+    dataNav: "seeds",
+    dropdown: [
+      {
+        label: "Clean & Safe School Initiative",
+        description: "Hygiene & dignity in schools",
+        to: "/our-seeds#clean-safe-school",
+      },
+      { label: "EduPath", description: "Career guidance beyond marks", to: "/our-seeds#edupath" },
+      {
+        label: "Pehli Udaan",
+        description: "A first flight for young learners",
+        to: "/our-seeds#pehli-udaan",
+      },
+      {
+        label: "Health & Well-being",
+        description: "Camps, care & awareness",
+        to: "/our-seeds#health",
+      },
+      {
+        label: "Nayi Shuruaat",
+        description: "New beginnings for women",
+        to: "/our-seeds#nayi-shuruaat",
+      },
+    ],
+  },
   {
     label: "Media & Stories",
     to: "/blog",
@@ -38,17 +77,14 @@ export const navLinks: NavLink[] = [
       { label: "Media & Updates", description: "Films, photos & press", to: "/media" },
     ],
   },
-  { label: "Contact", to: "/contact", dataNav: "contact" },
 ];
 
-/** Expanded list for the mobile menu (Media & Stories splits into Blog + Media). */
+/** Mobile menu list (matches the design's burger menu). */
 export const mobileNavLinks: { no: string; label: string; to: string; dataNav: string }[] = [
-  { no: "01", label: "Home", to: "/", dataNav: "home" },
-  { no: "02", label: "About Us", to: "/about", dataNav: "about" },
-  { no: "03", label: "Our Seeds", to: "/our-seeds", dataNav: "seeds" },
-  { no: "04", label: "Blog", to: "/blog", dataNav: "blog" },
-  { no: "05", label: "Media & Updates", to: "/media", dataNav: "media" },
-  { no: "06", label: "Contact", to: "/contact", dataNav: "contact" },
+  { no: "01", label: "Our Story", to: "/our-story", dataNav: "story" },
+  { no: "02", label: "Our Seeds", to: "/our-seeds", dataNav: "seeds" },
+  { no: "03", label: "Blog", to: "/blog", dataNav: "blog" },
+  { no: "04", label: "Media & Updates", to: "/media", dataNav: "media" },
 ];
 
 export const socials: SocialLink[] = [

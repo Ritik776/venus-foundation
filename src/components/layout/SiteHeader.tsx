@@ -7,7 +7,7 @@ import { useMagnetic } from "@/hooks/usePointerEffects";
 /** Maps a pathname to the `data-page` key used by the active-state CSS. */
 function pageKeyFor(pathname: string): string {
   if (pathname === "/") return "home";
-  if (pathname.startsWith("/about")) return "about";
+  if (pathname.startsWith("/our-story") || pathname.startsWith("/about")) return "story";
   if (pathname.startsWith("/our-seeds")) return "seeds";
   if (pathname.startsWith("/blog/")) return "post";
   if (pathname.startsWith("/blog")) return "blog";
@@ -17,12 +17,12 @@ function pageKeyFor(pathname: string): string {
 }
 
 /** Pages whose hero is a dark, full-bleed image — the nav sits transparent/light over them. */
-const HERO_DARK = new Set(["home", "about", "seeds", "blog", "media"]);
+const HERO_DARK = new Set(["home", "story", "seeds", "blog", "media"]);
 
 /** Which desktop / mobile nav key is "active" for a given page. */
 const DESKTOP_ACTIVE: Record<string, string> = {
   home: "home",
-  about: "about",
+  story: "story",
   seeds: "seeds",
   blog: "media",
   post: "media",
@@ -31,7 +31,7 @@ const DESKTOP_ACTIVE: Record<string, string> = {
 };
 const MOBILE_ACTIVE: Record<string, string> = {
   home: "home",
-  about: "about",
+  story: "story",
   seeds: "seeds",
   blog: "blog",
   post: "blog",
@@ -95,126 +95,124 @@ export function SiteHeader() {
     .join(" ");
 
   return (
-    <>
-      <header className={headerClasses} id="nav">
-        <div className="wrap-wide nav-inner">
-          <Link to="/" className="nav-logo" aria-label={`${site.name} home`}>
-            <img src={site.logo.dark} alt={site.name} height={56} />
-          </Link>
+    <header className={headerClasses} id="nav">
+      <div className="wrap-wide nav-inner">
+        <Link to="/" className="nav-logo" aria-label={`${site.name} home`}>
+          <img src={site.logo.dark} alt={site.name} height={56} />
+        </Link>
 
-          <nav className="nav-links" aria-label="Primary">
-            {navLinks.map((link) =>
-              link.dropdown ? (
-                <div className="has-drop" key={link.to}>
-                  <Link
-                    to={link.to}
-                    className="nav-link"
-                    data-nav={link.dataNav}
-                    aria-current={DESKTOP_ACTIVE[page] === link.dataNav ? "page" : undefined}
-                  >
-                    {link.label} ▾
-                  </Link>
-
-                  <div className="drop">
-                    {link.dropdown.map((item) => (
-                      <Link to={item.to} key={item.to}>
-                        <b>{item.label}</b>
-                        <span>{item.description}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ) : (
+        <nav className="nav-links" aria-label="Primary">
+          {navLinks.map((link) =>
+            link.dropdown ? (
+              <div className="has-drop" key={link.to}>
                 <Link
                   to={link.to}
-                  key={link.to}
                   className="nav-link"
                   data-nav={link.dataNav}
                   aria-current={DESKTOP_ACTIVE[page] === link.dataNav ? "page" : undefined}
                 >
-                  {link.label}
+                  {link.label} ▾
                 </Link>
-              ),
-            )}
-          </nav>
 
-          <div className="nav-cta">
-            <Link ref={getInvolvedRef} to="/contact" className="nav-getinvolved magnetic">
-              Get Involved
-              <Icon name="arrow-right" />
-            </Link>
-          </div>
-
-          <button
-            type="button"
-            className={`burger${menuOpen ? " open" : ""}`}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
-      </header>
-
-      <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
-        <div className="mm-head">
-          <button
-            type="button"
-            className="mm-close"
-            aria-label="Close menu"
-            onClick={() => setMenuOpen(false)}
-          />
-        </div>
-
-        <nav className="mm-links" aria-label="Mobile">
-          {mobileNavLinks.map((link) => (
-            <Link
-              to={link.to}
-              key={link.to}
-              data-nav={link.dataNav}
-              aria-current={MOBILE_ACTIVE[page] === link.dataNav ? "page" : undefined}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="mm-no">{link.no}</span>
-              {link.label}
-              <span className="mm-arrow">
-                <Icon name="arrow-right" />
-              </span>
-            </Link>
-          ))}
+                <div className="drop">
+                  {link.dropdown.map((item) => (
+                    <Link to={item.to} key={item.to}>
+                      <b>{item.label}</b>
+                      <span>{item.description}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link
+                to={link.to}
+                key={link.to}
+                className="nav-link"
+                data-nav={link.dataNav}
+                aria-current={DESKTOP_ACTIVE[page] === link.dataNav ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </nav>
 
-        <Link to="/contact" className="mm-donate" onClick={() => setMenuOpen(false)}>
-          Get Involved <Icon name="arrow-right" />
-        </Link>
+        <div className="nav-cta">
+          <Link ref={getInvolvedRef} to="/contact" className="nav-getinvolved magnetic">
+            Get Involved
+            <Icon name="arrow-right" />
+          </Link>
+        </div>
 
-        <div className="mm-foot">
-          <div className="mm-contact">
-            Plot No: 51, 52, Industrial Area Phase 1,
-            <br />
-            Panchkula, Haryana 134113
-            <br />
-            <a href={`tel:${site.contact.phone}`}>{site.contact.phone}</a> ·{" "}
-            <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+        <button
+          type="button"
+          className={`burger${menuOpen ? " open" : ""}`}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
+          <div className="mm-head">
+            <button
+              type="button"
+              className="mm-close"
+              aria-label="Close menu"
+              onClick={() => setMenuOpen(false)}
+            />
           </div>
-          <div className="mm-socials">
-            {socials.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                aria-label={social.label}
-                target="_blank"
-                rel="noopener noreferrer"
+
+          <nav className="mm-links" aria-label="Mobile">
+            {mobileNavLinks.map((link) => (
+              <Link
+                to={link.to}
+                key={link.to}
+                data-nav={link.dataNav}
+                aria-current={MOBILE_ACTIVE[page] === link.dataNav ? "page" : undefined}
+                onClick={() => setMenuOpen(false)}
               >
-                <Icon name={social.icon} />
-              </a>
+                <span className="mm-no">{link.no}</span>
+                {link.label}
+                <span className="mm-arrow">
+                  <Icon name="arrow-right" />
+                </span>
+              </Link>
             ))}
+          </nav>
+
+          <Link to="/contact" className="mm-donate" onClick={() => setMenuOpen(false)}>
+            Get Involved <Icon name="arrow-right" />
+          </Link>
+
+          <div className="mm-foot">
+            <div className="mm-contact">
+              Plot No: 51, 52, Industrial Area Phase 1,
+              <br />
+              Panchkula, Haryana 134113
+              <br />
+              <a href={`tel:${site.contact.phone}`}>{site.contact.phone}</a> ·{" "}
+              <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+            </div>
+            <div className="mm-socials">
+              {socials.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon name={social.icon} />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </header>
   );
 }

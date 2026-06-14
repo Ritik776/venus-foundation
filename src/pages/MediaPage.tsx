@@ -1,14 +1,11 @@
 import { useLightbox } from "@/components/layout/LightboxContext";
 import {
-  FacebookFeed,
   FieldFootage,
   FollowStrip,
-  InstagramFeed,
-  LinkedInFeed,
-  NetflixBrowser,
   PhotoMasonry,
   ScrubSequence,
   SocialWall,
+  WatchAndFollow,
 } from "@/components/sections/MediaSections";
 import { Cta2Band, InnerHero } from "@/components/sections/Shared";
 import { mediaContent } from "@/content/media";
@@ -47,11 +44,8 @@ export function MediaPage() {
         subtitle={hero.subtitle}
         onPlay={playHero}
       />
-      <NetflixBrowser videos={videos} />
+      <WatchAndFollow videos={videos} />
       <FieldFootage />
-      <InstagramFeed />
-      <FacebookFeed />
-      <LinkedInFeed />
       <SocialWall />
       <ScrubSequence />
       <PhotoMasonry />

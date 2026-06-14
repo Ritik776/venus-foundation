@@ -5,21 +5,22 @@
    Exposed as utilities (bg-navy, text-gold, font-display, …)
    ============================================================ */
 @theme {
-  --color-navy: #1b4f72;
-  --color-navy-deep: #11324a;
-  --color-red: #e74c3c;
-  --color-red-deep: #c33a2b;
-  --color-green: #52b947;
-  --color-green-deep: #2e7d32;
-  --color-gold: #f4b942;
-  --color-sky: #29b6f6;
-  --color-cream: #f9f9f7;
-  --color-cream-2: #f1efe9;
-  --color-charcoal: #2a2a2a;
-  --color-ink: #1c1c1c;
+  /* Careon-style: light · near-black · fresh green */
+  --color-navy: #1a1a1a;
+  --color-navy-deep: #0f0f0f;
+  --color-red: #16a34a;
+  --color-red-deep: #128040;
+  --color-green: #22b45e;
+  --color-green-deep: #15803d;
+  --color-gold: #a9e5c4;
+  --color-sky: #5e8b9e;
+  --color-cream: #f6f7f5;
+  --color-cream-2: #eceeea;
+  --color-charcoal: #242824;
+  --color-ink: #111111;
 
-  --font-display: "Clash Display", ui-serif, serif;
-  --font-sans: "Satoshi", "Helvetica Neue", system-ui, sans-serif;
+  --font-display: "Poppins", -apple-system, system-ui, sans-serif;
+  --font-sans: "Poppins", -apple-system, system-ui, sans-serif;
 
   --radius-card: 18px;
   --radius-card-lg: 30px;
@@ -47,7 +48,7 @@
   --charcoal: var(--color-charcoal);
   --ink: var(--color-ink);
   --white: #ffffff;
-  --line: rgba(27, 79, 114, 0.14);
+  --line: rgba(17, 17, 17, 0.12);
 
   --bg: var(--cream);
   --text: var(--charcoal);
