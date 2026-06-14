@@ -14,23 +14,37 @@ interface SplitTextProps {
  */
 export function SplitText({ as = "h2", text, className }: SplitTextProps) {
   const [ref, inView] = useInView<HTMLElement>();
-  const words = text.trim().split(/\s+/);
+  // A literal "\n" in the text forces a hard line break (stagger keeps running across it).
+  const lines = text.trim().split("\n");
   const classes = [className, inView ? "in" : null].filter(Boolean).join(" ");
+  let wordIndex = 0;
 
   return createElement(
     as,
     { ref, className: classes || undefined },
     <span className="split-line">
-      {words.map((word, i) => (
-        <Fragment key={`${word}-${i}`}>
-          <span className="split-word">
-            <span className="sp" style={{ transitionDelay: `${i * 0.04}s` }}>
-              {word}
-            </span>
-          </span>
-          {i < words.length - 1 ? <span className="split-gap"> </span> : null}
-        </Fragment>
-      ))}
+      {lines.map((line, li) => {
+        const words = line.trim().split(/\s+/);
+        return (
+          <Fragment key={`line-${li}`}>
+            {li > 0 ? <br /> : null}
+            {words.map((word, i) => {
+              const delay = wordIndex * 0.04;
+              wordIndex += 1;
+              return (
+                <Fragment key={`${word}-${li}-${i}`}>
+                  <span className="split-word">
+                    <span className="sp" style={{ transitionDelay: `${delay}s` }}>
+                      {word}
+                    </span>
+                  </span>
+                  {i < words.length - 1 ? <span className="split-gap"> </span> : null}
+                </Fragment>
+              );
+            })}
+          </Fragment>
+        );
+      })}
     </span>,
   );
 }

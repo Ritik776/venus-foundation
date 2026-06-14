@@ -248,3 +248,37 @@ export function InnerHero({
     </InstantReveal>
   );
 }
+
+interface PageHeroProps {
+  breadcrumb: string;
+  eyebrow: string;
+  title: string;
+  lead: string;
+  image: ImageRef;
+}
+
+/** Light page hero (the design's `.phero`) — breadcrumb, title, lead, wide image. */
+export function PageHero({ breadcrumb, eyebrow, title, lead, image }: PageHeroProps) {
+  return (
+    <InstantReveal>
+      <section className="phero grain">
+        <div className="phero-bg" data-parallax="-0.1" />
+        <div className="wrap">
+          <div className="breadcrumb">
+            <Link to="/">Home</Link> / <span>{breadcrumb}</span>
+          </div>
+          <Eyebrow>{eyebrow}</Eyebrow>
+          <SplitText as="h1" className="display" text={title} />
+          <Reveal as="p" delay={2} className="lead phero-lead">
+            {lead}
+          </Reveal>
+        </div>
+        <div className="wrap-wide">
+          <div className="img-mask phero-img in">
+            <img src={image.src} alt={image.alt} loading="lazy" />
+          </div>
+        </div>
+      </section>
+    </InstantReveal>
+  );
+}

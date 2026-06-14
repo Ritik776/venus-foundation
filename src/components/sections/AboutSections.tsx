@@ -9,7 +9,7 @@ const a = aboutContent;
 export function VisionSplit() {
   const { vision: v } = a;
   return (
-    <section className="pad surface-cream">
+    <section className="pad surface-cream" id="about">
       <div className="wrap split">
         <div className="split-copy">
           <Eyebrow>{v.eyebrow}</Eyebrow>
@@ -73,7 +73,7 @@ export function ValuesGrid() {
 export function ChairpersonLeader() {
   const { chairperson: ch } = a;
   return (
-    <section className="pad surface-cream">
+    <section className="pad surface-cream" id="changemakers">
       <div className="wrap">
         <div className="center" style={{ marginBottom: "clamp(34px,4vw,54px)" }}>
           <Eyebrow center>{ch.eyebrow}</Eyebrow>
@@ -131,7 +131,7 @@ export function TeamGrid() {
 export function PartnersGrid() {
   const { partners: p } = a;
   return (
-    <section className="pad surface-cream" style={{ paddingTop: 0 }}>
+    <section className="pad surface-cream" id="partners" style={{ paddingTop: 0 }}>
       <div className="wrap">
         <div className="center" style={{ marginBottom: "clamp(30px,4vw,48px)" }}>
           <Eyebrow center>{p.eyebrow}</Eyebrow>

@@ -1,75 +1,52 @@
-import type { ChipTone } from "@/components/primitives/Chip";
-import type { IconName } from "@/components/primitives/Icon";
-import type { Cta, DidYouKnow, HeroPill, ImageRef, RichLine, Stat } from "@/types/content";
+import type { Cta, ImageRef, Stat } from "@/types/content";
 import { img } from "./images";
 
-export interface JourneyChapter {
-  no: string;
-  tag: string;
-  tone: ChipTone;
+export interface SparkCard {
+  date: string;
   title: string;
   body: string;
-  image: ImageRef;
-  reversed?: boolean;
-}
-
-export interface Voice {
-  quote: string;
-  name: string;
-  role: string;
-  image: string;
-  accent?: boolean;
-}
-
-export interface InvolveCard {
-  no: string;
-  icon: IconName;
-  title: string;
-  body: string;
-  cta: Cta;
   image: string;
 }
 
-export interface HappyImage extends ImageRef {
-  span?: "tall" | "wide";
-}
+const trust = {
+  avatars: [img.ekta, img.rakesh, img.sonika],
+} as const;
 
 export const homeContent = {
+  /* Full-bleed Careons-style slideshow hero */
   immersiveHero: {
-    eyebrow: "NGO · Panchkula, India · Since 2025",
-    title: "Planting Seeds of Change",
+    eyebrow: "Welcome to Venus Foundation",
+    title: "Small acts,\nbig impact.",
     subtitle:
-      "We nurture growth through education, nourishment and care — turning small acts of kindness into brighter futures for communities across India.",
-    actions: [
-      { label: "Get involved", to: "/contact", variant: "primary", arrow: true },
-      { label: "Explore our work", to: "/our-seeds", variant: "ghost", onDark: true },
-    ] satisfies Cta[],
-    pills: [
-      { value: "200+", label: "trees planted" },
-      { value: "750+", label: "students reached" },
-      { value: "20", label: "women supported" },
-    ] satisfies HeroPill[],
+      "Venus Foundation is shaping brighter futures — nurturing growth through education, nourishment and care, one act of kindness at a time.",
+    action: {
+      label: "Explore our work",
+      to: "/our-seeds",
+      variant: "navy",
+      arrow: true,
+    } satisfies Cta,
+    trust,
     slides: [
-      { src: img.foodDistribution, alt: "Food distribution drive" },
-      { src: img.treePlantation, alt: "Tree plantation drive" },
-      { src: img.communities, alt: "Community gathering" },
+      { src: "/assets/img/hero-1.png", alt: "Children celebrating at a Venus Foundation school" },
+      { src: "/assets/img/hero-2.png", alt: "Venus Foundation team welcomed by schoolchildren" },
+      { src: "/assets/img/hero-3.png", alt: "Volunteers repainting a school classroom" },
     ] satisfies ImageRef[],
   },
 
+  /* Preserved collage hero, now a section below the immersive hero */
   welcome: {
     eyebrow: "Welcome to Venus Foundation",
     title: "Small acts, big impact.",
-    actions: [
-      { label: "Explore our work", to: "/our-seeds", variant: "navy", arrow: true },
-      { label: "Become a volunteer", to: "/contact", variant: "ghost" },
-    ] satisfies Cta[],
-    trust: {
-      avatars: [img.ekta, img.rakesh, img.sonika],
-      text: "750+ students & 20 women supported across Haryana",
-    },
+    action: {
+      label: "Explore our work",
+      to: "/our-seeds",
+      variant: "navy",
+      arrow: true,
+    } satisfies Cta,
+    trust,
     collage: {
       images: [
-        { src: img.planting, alt: "Hands planting a seedling" },
+        { src: img.communities, alt: "Children celebrating" },
         { src: img.foodDistribution, alt: "Food distribution drive" },
         { src: img.topImg, alt: "Community portrait" },
       ] satisfies ImageRef[],
@@ -78,208 +55,101 @@ export const homeContent = {
     },
   },
 
-  marquee: [
-    "Education",
-    "Nourishment",
-    "Clean Water",
-    "Health & Wellbeing",
-    "Gender Equality",
-    "Climate Care",
-  ],
-
-  didYouKnow: {
-    label: "💡 Did you know?",
-    text: "Small actions can spark global change. What starts in your community can transform lives, economies and ecosystems far beyond your reach.",
-  } satisfies DidYouKnow,
-
-  journey: {
+  /* Careon-style sticky split storytelling timeline */
+  spark: {
     eyebrow: "How change grows",
     title: "From a single seed to a flourishing community.",
-    body: "Every transformation follows a journey. Here's how a small act of care takes root and blooms into lasting impact.",
-    chapters: [
-      {
-        no: "01",
-        tag: "Plant",
-        tone: "green",
-        title: "We plant the first seed.",
-        body: "It starts small — a meal shared, a classroom opened, a sapling pressed into the soil. Each act is an intention to nurture something greater.",
-        image: { src: img.planting, alt: "Planting a seed" },
-      },
-      {
-        no: "02",
-        tag: "Nourish",
-        tone: "red",
-        title: "We nourish what we start.",
-        body: "Growth needs care. Nutritious food, clean water, healthcare and mentorship keep our seeds strong through every season of need.",
-        image: { src: img.foodDistribution, alt: "Nourishing communities" },
-        reversed: true,
-      },
-      {
-        no: "03",
-        tag: "Grow",
-        tone: "gold",
-        title: "Communities grow together.",
-        body: "One supported family lifts another. Knowledge spreads, confidence builds, and entire neighbourhoods begin to thrive — together.",
-        image: { src: img.communities, alt: "Communities growing together" },
-      },
-      {
-        no: "04",
-        tag: "Bloom",
-        tone: "sky",
-        title: "And the change blooms.",
-        body: "What began as one quiet act becomes a forest of opportunity — brighter futures rooted in dignity, hope and lasting impact.",
-        image: { src: img.treePlantation, alt: "A flourishing future" },
-        reversed: true,
-      },
-    ] satisfies JourneyChapter[],
-  },
-
-  stats: {
-    title: "Be a part of our journey & make an impact.",
-    body: "Every number here is a life touched, a tree rooted, a future widened. This is only the beginning.",
-    items: [
-      { value: 200, suffix: "+", label: "Trees planted", tone: "text-green" },
-      { value: 2, label: "Toilets built in schools", tone: "text-gold" },
-      { value: 750, label: "Students reached", tone: "text-sky" },
-      { value: 20, label: "Women actively supported", tone: "text-red" },
-    ] satisfies Stat[],
-  },
-
-  video: {
-    eyebrow: "Together, we're creating brighter futures",
-    title: "Every moment tells a story. Watch how change happens.",
-    image: { src: img.blogSlider, alt: "Spreading hope" },
-    chip: "Our Film",
-    caption: "Seeds of Change — 2025",
-    videoId: "demo",
-  },
-
-  principles: {
-    head: {
-      eyebrow: "Our principles",
-      title: "The promises we keep — and the lines we won't cross.",
-      body: "Integrity shapes every decision we make. Here's what guides us, and what we will never compromise on.",
-    },
-    stand: {
-      heading: "What we stand for",
-      items: [
-        [
-          { text: "Create sustainable impact", bold: true },
-          { text: " through long-term programs in health, education and empowerment." },
-        ],
-        [
-          { text: "Believe in " },
-          { text: "empowering with dignity", bold: true },
-          { text: ", supporting without creating dependence." },
-        ],
-        [
-          { text: "Ensure " },
-          { text: "transparency in every step", bold: true },
-          { text: " with honest, accountable actions." },
-        ],
-        [
-          { text: "We value " },
-          { text: "compassionate collaboration", bold: true },
-          { text: " with local change makers for real impact." },
-        ],
-      ] satisfies RichLine[],
-    },
-    refuse: {
-      heading: "What we refuse",
-      items: [
-        [
-          { text: "Using aid for self-gain", bold: true },
-          { text: " — we never treat social work as a tool for publicity." },
-        ],
-        [
-          { text: "Discrimination in any form", bold: true },
-          { text: " — we include all, regardless of background." },
-        ],
-        [
-          { text: "Cutting ethical corners", bold: true },
-          { text: " — integrity always comes first." },
-        ],
-        [
-          { text: "We refuse " },
-          { text: "silencing community voices", bold: true },
-          { text: " and always listen before acting." },
-        ],
-      ] satisfies RichLine[],
-    },
-  },
-
-  happyWall: {
-    eyebrow: "Happy Wall",
-    title: "These smiles are the true measure of our work.",
-    images: [
-      { src: img.foodDistribution, alt: "Food distribution", span: "tall" },
-      { src: img.treePlantation, alt: "Tree plantation" },
-      { src: img.communities, alt: "Community" },
-      { src: img.bloodDonation, alt: "Blood donation camp", span: "tall" },
-      { src: img.blogSlider, alt: "Spreading hope", span: "wide" },
-    ] satisfies HappyImage[],
-  },
-
-  voices: {
-    eyebrow: "Voices of change",
-    title: "The people behind every seed we plant.",
-    items: [
-      {
-        quote:
-          "Giving back to society is a responsibility I hold close to my heart. With Venus Foundation, that feeling finally became meaningful action.",
-        name: "Rakesh Thakur",
-        role: "Relationship Manager",
-        image: img.rakesh,
-      },
-      {
-        quote:
-          "Even small actions, done with the right intention and heart, can ripple far beyond what we imagine. That belief is the heart of everything we do.",
-        name: "Ekta S. Chaudhary",
-        role: "Chairperson",
-        image: img.ekta,
-        accent: true,
-      },
-      {
-        quote:
-          "We listen before we lead. Walking with communities — not ahead of them — is how real, lasting change takes root.",
-        name: "Sonika",
-        role: "Admin",
-        image: img.sonika,
-      },
-    ] satisfies Voice[],
-  },
-
-  involve: {
-    eyebrow: "Get involved",
-    title: "Three simple ways to grow change with us.",
+    sub: "Every transformation follows a journey — how a small act of care takes root and blooms into lasting impact.",
     cards: [
       {
-        no: "01",
-        icon: "share",
-        title: "Spread the Word",
-        body: "Share our stories and amplify our mission — your voice helps a seed reach further.",
-        cta: { label: "Follow & share", to: "/media" },
-        image: img.foodDistribution,
+        date: "April 2025",
+        title: "The First Seed",
+        body: "Venus Foundation was born with one belief: small acts of care can grow into lasting change.",
+        image: img.planting,
       },
       {
-        no: "02",
-        icon: "users",
-        title: "Volunteer",
-        body: "Give your time and skills on the ground — at drives, classrooms and camps.",
-        cta: { label: "Join the team", to: "/contact" },
+        date: "May 2025",
+        title: "A Place to Dream",
+        body: "Our journey began by transforming a government school in Sec 19 Panchkula and creating our first BachpanShala from a forgotten classroom.",
+        image: img.educationImg,
+      },
+      {
+        date: "October 2025",
+        title: "Care That Reaches",
+        body: "Healthcare reached communities where access is limited, bringing care closer to those who need it most.",
+        image: img.careAction,
+      },
+      {
+        date: "November 2025",
+        title: "Opening New Doors",
+        body: "Launched Nayi Shuruaat and EduPath to empower women and guide students towards brighter futures.",
+        image: img.freedomThrive,
+      },
+      {
+        date: "January 2026",
+        title: "Building Better Schools",
+        body: "Launched the Clean & Safe School Initiative with a mission to ensure every student has access to clean toilets and safe drinking water.",
+        image: img.waterLife,
+      },
+      {
+        date: "January 2026",
+        title: "Growing with Care",
+        body: "Partnered with the District Administration, Hamirpur to improve care and opportunities for children in Child Care Institutions.",
         image: img.communities,
       },
       {
-        no: "03",
-        icon: "partner",
-        title: "Partner",
-        body: "Bring your organisation's CSR to life through a collaboration that lasts.",
-        cta: { label: "Partner with us", to: "/contact" },
-        image: img.treePlantation,
+        date: "June 2026",
+        title: "Investing in Potential",
+        body: "Signed an MoU with PhysicsWallah to provide students with access to quality coaching and the support they deserve.",
+        image: img.eduPath,
       },
-    ] satisfies InvolveCard[],
+    ] satisfies SparkCard[],
+    endNote:
+      "Every milestone strengthens our commitment to creating brighter futures for children, women, and communities.",
   },
 
+  /* Merged impact stats + film panel */
+  impact: {
+    eyebrow: "Together, we're creating brighter futures",
+    title: "Be a part of our journey & make an impact.",
+    body: "Every number here is a life touched, a tree rooted, a future widened — and every story behind it is worth watching.",
+    stats: [
+      { value: 200, suffix: "+", label: "Trees planted" },
+      { value: 2, label: "Toilets built in schools" },
+      { value: 750, label: "Students reached" },
+      { value: 20, label: "Women actively supported" },
+    ] satisfies Stat[],
+    video: {
+      image: { src: img.blogSlider, alt: "Spreading hope" } satisfies ImageRef,
+      chip: "Our Film",
+      caption: "Seeds of Change — 2025",
+      videoId: "hzO1_QvvUfw",
+    },
+  },
+
+  /* Dual-row marquee gallery */
+  happyWall: {
+    eyebrow: "Happy Wall",
+    title: "These smiles are the true measure of our work.",
+    rows: [
+      [
+        { src: img.foodDistribution, alt: "Food distribution" },
+        { src: img.treePlantation, alt: "Tree plantation" },
+        { src: img.communities, alt: "Community" },
+        { src: img.bloodDonation, alt: "Blood donation camp" },
+        { src: img.blogSlider, alt: "Spreading hope" },
+      ],
+      [
+        { src: img.topImg, alt: "Walking with communities" },
+        { src: img.planting, alt: "Planting a seedling" },
+        { src: img.mediaTop, alt: "Together for change" },
+        { src: img.communities, alt: "Community gathering" },
+        { src: img.foodDistribution, alt: "Meal drive" },
+      ],
+    ] satisfies ImageRef[][],
+  },
+
+  /* Rounded contained CTA card */
   cta: {
     title: "Walk with us.",
     body: "Come along on a journey rooted in kindness, hope and lasting impact. Your time, voice or skills plant the next seed of change.",

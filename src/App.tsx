@@ -14,6 +14,7 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/our-story" element={<AboutPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/our-seeds" element={<SeedsPage />} />
         <Route path="/blog" element={<BlogPage />} />

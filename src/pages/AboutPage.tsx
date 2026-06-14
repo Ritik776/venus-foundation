@@ -2,34 +2,30 @@ import {
   ChairpersonLeader,
   PartnersGrid,
   TeamGrid,
-  ValuesGrid,
   VisionSplit,
 } from "@/components/sections/AboutSections";
-import { Cta2Band, DidYouKnowBand, InnerHero } from "@/components/sections/Shared";
+import { Cta2Band, PageHero } from "@/components/sections/Shared";
 import { aboutContent } from "@/content/about";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export function AboutPage() {
   useDocumentMeta({
-    title: "About Us",
+    title: "Our Story",
     description:
-      "Venus Foundation is a non-profit working to build an inclusive India — access to nutritious food, clean water, healthcare, education and equal opportunity for all.",
+      "Venus Foundation's story — who we are, the changemakers who carry the work forward, and the partners who grow alongside us.",
   });
 
   const { hero } = aboutContent;
   return (
     <>
-      <InnerHero
-        image={hero.image}
+      <PageHero
         breadcrumb={hero.breadcrumb}
         eyebrow={hero.eyebrow}
         title={hero.title}
-        subtitle={hero.subtitle}
-        pills={hero.pills}
+        lead={hero.subtitle}
+        image={hero.image}
       />
-      <DidYouKnowBand data={aboutContent.didYouKnow} />
       <VisionSplit />
-      <ValuesGrid />
       <ChairpersonLeader />
       <TeamGrid />
       <PartnersGrid />

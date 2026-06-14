@@ -154,6 +154,42 @@ export function useTableOfContents(
   return state;
 }
 
+/**
+ * Careon-style sticky split: returns the index of the last `.spark-card`
+ * whose top has crossed the viewport's 45% line, swapping the active image
+ * and card as the list scrolls.
+ */
+export function useSparkScenes(sceneRef: RefObject<HTMLElement | null>): number {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) {
+      return;
+    }
+    const update = () => {
+      const cards = scene.querySelectorAll<HTMLElement>(".spark-card");
+      const mid = window.innerHeight * 0.45;
+      let idx = 0;
+      cards.forEach((card, i) => {
+        if (card.getBoundingClientRect().top < mid) {
+          idx = i;
+        }
+      });
+      setIndex(idx);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [sceneRef]);
+
+  return index;
+}
+
 /** Auto-advancing hero slideshow index with manual override support. */
 export function useHeroSlides(count: number, intervalMs = 5200) {
   const [index, setIndex] = useState(0);

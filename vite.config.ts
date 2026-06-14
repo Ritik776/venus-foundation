@@ -34,11 +34,43 @@ function devYouTubeApi(env: Record<string, string>): Plugin {
   };
 }
 
+/**
+ * Dev-only: serve GET /api/instagram locally (mirrors the Vercel function) so
+ * the live Instagram fetch works under `npm run dev`. Reads IG_ACCESS_TOKEN
+ * from .env.
+ */
+function devInstagramApi(env: Record<string, string>): Plugin {
+  return {
+    name: "dev-instagram-api",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use("/api/instagram", async (_req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        const token = env.IG_ACCESS_TOKEN;
+        if (!token) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: "IG_ACCESS_TOKEN not configured in .env" }));
+          return;
+        }
+        try {
+          const helper = new URL("./api/_instagram.mjs", import.meta.url).href;
+          const { fetchInstagramMedia } = await import(helper);
+          const media = await fetchInstagramMedia(token);
+          res.end(JSON.stringify({ media }));
+        } catch (err) {
+          res.statusCode = 502;
+          res.end(JSON.stringify({ error: String((err as Error).message || err) }));
+        }
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
-    plugins: [react(), tailwindcss(), devYouTubeApi(env)],
+    plugins: [react(), tailwindcss(), devYouTubeApi(env), devInstagramApi(env)],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

@@ -9,35 +9,12 @@ function canHover(): boolean {
 }
 
 /**
- * Magnetic pull: the element drifts toward the cursor while hovered.
- * Returns a ref to attach to the target element.
+ * Magnetic pull is intentionally disabled (no movement on hover) to match the
+ * design — buttons should not drift/shake toward the cursor. Returns a ref so
+ * existing call sites keep working unchanged.
  */
-export function useMagnetic<T extends HTMLElement>(strength = 0.3): RefObject<T | null> {
-  const ref = useRef<T>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || !canHover()) {
-      return;
-    }
-    const onMove = (event: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const x = event.clientX - rect.left - rect.width / 2;
-      const y = event.clientY - rect.top - rect.height / 2;
-      el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
-    };
-    const onLeave = () => {
-      el.style.transform = "";
-    };
-    el.addEventListener("mousemove", onMove);
-    el.addEventListener("mouseleave", onLeave);
-    return () => {
-      el.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
-    };
-  }, [strength]);
-
-  return ref;
+export function useMagnetic<T extends HTMLElement>(_strength = 0.3): RefObject<T | null> {
+  return useRef<T>(null);
 }
 
 /** 3D tilt-on-hover for cards. */

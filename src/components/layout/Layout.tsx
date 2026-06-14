@@ -6,13 +6,21 @@ import { ScrollProgress } from "./ScrollProgress";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
-/** Resets scroll position on every route change. */
+/** Resets scroll on route change, or scrolls to the `#anchor` section when present. */
 function useScrollReset() {
-  const { pathname } = useLocation();
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reset scroll position on every navigation.
+  const { pathname, hash } = useLocation();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run on every navigation (path or hash).
   useEffect(() => {
+    if (hash) {
+      const id = decodeURIComponent(hash.slice(1));
+      // Wait a frame so the destination page has rendered before scrolling.
+      const raf = requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return () => cancelAnimationFrame(raf);
+    }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [pathname]);
+  }, [pathname, hash]);
 }
 
 export function Layout() {

@@ -1,75 +1,62 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, type ReactNode, useRef, useState } from "react";
 import { useLightbox } from "@/components/layout/LightboxContext";
 import { Chip } from "@/components/primitives/Chip";
 import { Eyebrow } from "@/components/primitives/Eyebrow";
-import { Icon } from "@/components/primitives/Icon";
+import { Icon, type IconName } from "@/components/primitives/Icon";
 import { Reveal, type RevealDelay } from "@/components/primitives/Reveal";
 import { SplitText } from "@/components/primitives/SplitText";
-import { mediaContent, type NfCard, type NfRow, type WallCard } from "@/content/media";
+import {
+  type FbFeedPost,
+  type IgFeedPost,
+  mediaContent,
+  type RailCard,
+  type WallCard,
+} from "@/content/media";
+import { useInstagramFeed } from "@/hooks/useInstagramFeed";
 import { useDragScroll, useRailControls } from "@/hooks/usePointerEffects";
 import { useScrub } from "@/hooks/useScrollScenes";
 import type { YtVideo } from "@/hooks/useYouTubeVideos";
 
 const m = mediaContent;
 
-const PROFILE = {
-  youtube: "https://www.youtube.com/@FoundationVenus",
-  instagram: "https://www.instagram.com/venus.foundation",
-  facebook: "https://www.facebook.com/foundationvenus/",
-  linkedin: "https://www.linkedin.com/company/foundationvenus/",
-} as const;
+const LOGO =
+  "https://cdn.prod.website-files.com/686a42bf95a654b62506d2e5/686fa93a101af483ddc4eb80_Venus%20Foundation%20logo-02%202.svg";
 
 /* ============================================================
-   NETFLIX-STYLE BROWSER
+   WATCH & FOLLOW — one section, every channel as a platform rail
    ============================================================ */
-function NfCardView({ card }: { card: NfCard }) {
-  const { open } = useLightbox();
-  return (
-    <button
-      type="button"
-      className="nf-card"
-      aria-label={card.title ? `Play ${card.title}` : "Play video"}
-      onClick={() => open({ kind: "youtube", id: card.videoId, short: card.short })}
-    >
-      {card.badge ? <span className="nf-badge-top">{card.badge}</span> : null}
-      <img src={card.image} alt="" loading="lazy" />
-      <span className="nf-play-mini">
-        <Icon name="play" />
-      </span>
-      {card.title ? (
-        <div className="nf-card-info">
-          <h4>{card.title}</h4>
-          {card.tags ? (
-            <div className="nf-card-tags">
-              {card.tags.map((tag, i) =>
-                i === 0 ? (
-                  <span className="match" key={tag}>
-                    {tag}
-                  </span>
-                ) : (
-                  <Fragment key={tag}>
-                    <span className="dotsep" />
-                    <span>{tag}</span>
-                  </Fragment>
-                ),
-              )}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-    </button>
-  );
-}
 
-function NfRailRow({ row }: { row: NfRow }) {
+/** Generic horizontal rail with a platform-labelled head + edge arrows. */
+function Rail({
+  plat,
+  icon,
+  title,
+  exploreHref,
+  exploreLabel,
+  railClass,
+  children,
+}: {
+  plat: "yt" | "ig" | "fb" | "li";
+  icon: IconName;
+  title: string;
+  exploreHref: string;
+  exploreLabel: string;
+  railClass?: string;
+  children: ReactNode;
+}) {
   const railRef = useDragScroll<HTMLDivElement>();
   const { atStart, atEnd, scrollPrev, scrollNext } = useRailControls(railRef);
   return (
     <Reveal className="nf-row">
       <div className="wrap">
         <div className="nf-row-head">
-          <h3 className="nf-row-title">{row.title}</h3>
-          {row.explore ? <span className="nf-explore">Explore all ›</span> : null}
+          <span className={`nf-plat ${plat}`}>
+            <Icon name={icon} />
+          </span>
+          <h3 className="nf-row-title">{title}</h3>
+          <a className="nf-explore" href={exploreHref} target="_blank" rel="noopener noreferrer">
+            {exploreLabel}
+          </a>
         </div>
       </div>
       <div className="nf-rail-wrap">
@@ -82,19 +69,8 @@ function NfRailRow({ row }: { row: NfRow }) {
         >
           <Icon name="chevron-left" strokeWidth={2.5} />
         </button>
-        <div
-          className={`nf-rail${row.top10 ? " nf-top10" : ""}${row.shorts ? " nf-shorts" : ""}`}
-          id={row.id}
-          ref={railRef}
-        >
-          {row.top10
-            ? row.cards.map((card, i) => (
-                <div className="nf-rank" key={card.videoId}>
-                  <span className="nf-rank-num">{i + 1}</span>
-                  <NfCardView card={card} />
-                </div>
-              ))
-            : row.cards.map((card) => <NfCardView card={card} key={card.videoId} />)}
+        <div className={`nf-rail${railClass ? ` ${railClass}` : ""}`} ref={railRef}>
+          {children}
         </div>
         <button
           type="button"
@@ -110,62 +86,385 @@ function NfRailRow({ row }: { row: NfRow }) {
   );
 }
 
+/** Compact thumbnail card used by YouTube, Instagram Reels and LinkedIn rails. */
+function NfCardView({
+  image,
+  title,
+  tags,
+  badge,
+  playIcon = "play",
+  onOpen,
+}: {
+  image: string;
+  title?: string;
+  tags?: readonly string[];
+  badge?: string;
+  playIcon?: IconName;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="nf-card"
+      aria-label={title ? `Open ${title}` : "Open media"}
+      onClick={onOpen}
+    >
+      {badge ? <span className="nf-badge-top">{badge}</span> : null}
+      <img src={image} alt="" loading="lazy" />
+      <span className="nf-play-mini">
+        <Icon name={playIcon} />
+      </span>
+      {title ? (
+        <div className="nf-card-info">
+          <h4>{title}</h4>
+          {tags ? (
+            <div className="nf-card-tags">
+              {tags.map((tag, i) => (
+                <Fragment key={tag}>
+                  {i > 0 ? <span className="dotsep" /> : null}
+                  <span>{tag}</span>
+                </Fragment>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </button>
+  );
+}
+
 const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-function toCard(v: YtVideo): NfCard {
-  return {
-    image: v.thumb,
-    title: v.title,
-    tags: [v.short ? "Short" : "Film", fmtDuration(v.seconds)],
-    videoId: v.id,
-    short: v.short,
-  };
+/** First line of a caption, trimmed to a card-friendly length. */
+function firstLine(caption: string): string {
+  const line = caption.split("\n")[0].trim();
+  return line.length > 48 ? `${line.slice(0, 47)}…` : line;
 }
 
-/** Build the browse rows from the (live or snapshot) video list. */
-function buildRows(videos: YtVideo[]): NfRow[] {
-  const cards = videos.map(toCard);
-  const shorts = cards.filter((c) => c.short);
-  return [
-    { id: "nf-shorts", title: "Shorts", shorts: true, explore: true, cards: shorts },
-    { id: "nf-row1", title: "Trending now", explore: true, cards: cards.slice(0, 10) },
-    { id: "nf-row2", title: "Top 10 this month", top10: true, cards: shorts.slice(0, 10) },
-    { id: "nf-row3", title: "Stories by cause", explore: true, cards: cards.slice(8) },
-  ];
+/** Coarse "x days/weeks ago" from an ISO timestamp. */
+function relTime(iso: string): string {
+  if (!iso) {
+    return "";
+  }
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (days <= 0) {
+    return "Today";
+  }
+  if (days < 7) {
+    return days === 1 ? "1 day ago" : `${days} days ago`;
+  }
+  if (days < 30) {
+    const weeks = Math.floor(days / 7);
+    return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
+  }
+  const months = Math.floor(days / 30);
+  return months === 1 ? "1 month ago" : `${months} months ago`;
 }
 
-export function NetflixBrowser({ videos }: { videos: YtVideo[] }) {
-  const { netflix: nf } = m;
-  const rows = buildRows(videos);
+/** Instagram feed post card (full IG-style UI). */
+function IgPostCard({ post, handle }: { post: IgFeedPost; handle: string }) {
+  const { open } = useLightbox();
+  return (
+    <button
+      type="button"
+      className="nf-postcard ig"
+      onClick={() => open({ kind: "instagram", url: post.url || "demo" })}
+    >
+      <div className="pc-head">
+        <span className="pc-avatar ring">
+          <img src={LOGO} alt="" />
+        </span>
+        <span className="pc-id">
+          <b>{handle}</b>
+          <span>{post.sub}</span>
+        </span>
+        <span className="pc-plat">
+          <Icon name="instagram" />
+        </span>
+      </div>
+      <div className="pc-media">
+        <img src={post.image} alt="" loading="lazy" />
+        <span className="pc-play">
+          <Icon name="play" />
+        </span>
+      </div>
+      <div className="pc-actions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M12 21s-8-5-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 6-8 11-8 11z" />
+        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M21 11.5a8.5 8.5 0 01-12 7.7L3 21l1.8-6A8.5 8.5 0 1121 11.5z" />
+        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+        </svg>
+        <svg
+          className="pc-save"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+        </svg>
+      </div>
+      <div className="pc-body">
+        <div className="pc-likes">{post.likes} likes</div>
+        <div className="pc-cap">
+          <b>{handle}</b> {post.caption}
+        </div>
+        <div className="pc-cmts">View all {post.comments} comments</div>
+        <div className="pc-time">{post.time}</div>
+      </div>
+    </button>
+  );
+}
+
+const FB_EMOJI: Record<string, string> = { like: "👍", love: "❤", care: "🤗" };
+
+/** Facebook feed post card (full FB-style UI). */
+function FbPostCard({ post }: { post: FbFeedPost }) {
+  const { open } = useLightbox();
+  return (
+    <button
+      type="button"
+      className="nf-postcard fb"
+      onClick={() => open({ kind: "facebook", url: post.url, fbVideo: post.video })}
+    >
+      <div className="pc-head">
+        <span className="pc-avatar">
+          <img src={LOGO} alt="" />
+        </span>
+        <span className="pc-id">
+          <b>Venus Foundation</b>
+          <span>
+            {post.time} · <Icon name="circle" />
+          </span>
+        </span>
+        <span className="pc-plat" style={{ color: "#1877f2" }}>
+          <Icon name="facebook" />
+        </span>
+      </div>
+      <div className="pc-fbtext">{post.text}</div>
+      <div className="pc-media">
+        <img src={post.image} alt="" loading="lazy" />
+        {post.video ? (
+          <span className="pc-badge">
+            <Icon name="play" />
+            Video
+          </span>
+        ) : null}
+        <span className="pc-play">
+          <Icon name={post.video ? "play" : "expand"} />
+        </span>
+      </div>
+      <div className="pc-react">
+        <span className="pc-emojis">
+          {post.reactions.map((r) => (
+            <span className={`e-${r}`} key={r}>
+              {FB_EMOJI[r]}
+            </span>
+          ))}
+        </span>
+        <span>{post.count}</span>
+        <span className="pc-cmtcount">{post.comments} comments</span>
+      </div>
+      <div className="pc-bar">
+        <span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path d="M7 11v9H4a1 1 0 01-1-1v-7a1 1 0 011-1zm0 0l4-8a2 2 0 012 2v3h4.5a2 2 0 012 2.3l-1.2 6A2 2 0 0117.3 20H7" />
+          </svg>
+          Like
+        </span>
+        <span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path d="M21 11.5a8.5 8.5 0 01-12 7.7L3 21l1.8-6A8.5 8.5 0 1121 11.5z" />
+          </svg>
+          Comment
+        </span>
+        <span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden="true"
+          >
+            <path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13" />
+          </svg>
+          Share
+        </span>
+      </div>
+    </button>
+  );
+}
+
+export function WatchAndFollow({ videos }: { videos: YtVideo[] }) {
+  const { watch } = m;
+  const { open } = useLightbox();
+  const { media: igMedia } = useInstagramFeed();
+  const shorts = videos.filter((v) => v.short);
+  const films = videos.filter((v) => !v.short);
+
+  // Live Instagram → rail cards, falling back to the curated demo content when
+  // no token is configured (or the account has no posts of that kind yet).
+  const liveReels = igMedia.filter((media) => media.type === "reel");
+  const livePosts = igMedia.filter((media) => media.type === "post");
+
+  const reelCards: RailCard[] = liveReels.length
+    ? liveReels.map((media, i) => ({
+        image: media.image,
+        title: firstLine(media.caption) || "Instagram reel",
+        tags: [media.likes != null ? `Reel · ${media.likes} likes` : "Reel"],
+        badge: i === 0 ? "Reel" : undefined,
+        url: media.permalink,
+      }))
+    : [...watch.igReels];
+
+  const postCards: IgFeedPost[] = livePosts.length
+    ? livePosts.map((media) => ({
+        image: media.image,
+        sub: "", // API has no location; the timestamp shows at the card foot
+        likes: media.likes ?? 0,
+        caption: media.caption,
+        comments: media.comments ?? 0,
+        time: relTime(media.timestamp),
+        url: media.permalink,
+      }))
+    : [...watch.igPosts];
+
+  const ytCard = (v: YtVideo) => (
+    <NfCardView
+      key={v.id}
+      image={v.thumb}
+      title={v.title}
+      tags={[v.short ? "Short" : "Film", fmtDuration(v.seconds)]}
+      onOpen={() => open({ kind: "youtube", id: v.id, short: v.short })}
+    />
+  );
+
   return (
     <section className="pad nf-surface grain" id="watch">
       <div className="wrap">
         <div className="nf-intro">
           <div className="chan-intro">
-            <span className="chan-badge yt">
-              <Icon name="youtube" />
-              {nf.badge}
-            </span>
-            <SplitText as="h2" className="h1" text={nf.title} />
+            <Eyebrow onDark>{watch.eyebrow}</Eyebrow>
+            <SplitText as="h2" className="h1" text={watch.title} />
           </div>
-          <a
-            href={nf.subscribeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="chan-follow yt"
-          >
-            <Icon name="youtube" />
-            Subscribe
-          </a>
         </div>
       </div>
+
+      {shorts.length > 0 ? (
+        <Rail
+          plat="yt"
+          icon="youtube"
+          title="YouTube Shorts"
+          exploreHref={watch.channels.youtube}
+          exploreLabel="Open YouTube ›"
+          railClass="tall"
+        >
+          {shorts.map(ytCard)}
+        </Rail>
+      ) : null}
+
+      {films.length > 0 ? (
+        <Rail
+          plat="yt"
+          icon="youtube"
+          title="YouTube Videos"
+          exploreHref={watch.channels.youtube}
+          exploreLabel="Open YouTube ›"
+        >
+          {films.map(ytCard)}
+        </Rail>
+      ) : null}
+
       {videos.length === 0 ? (
         <div className="wrap">
           <p style={{ color: "#b3aa99", marginTop: 8 }}>Connect the channel to load videos.</p>
         </div>
-      ) : (
-        rows.map((row) => <NfRailRow row={row} key={row.id} />)
-      )}
+      ) : null}
+
+      <Rail
+        plat="ig"
+        icon="instagram"
+        title="Instagram Reels"
+        exploreHref={watch.channels.instagram}
+        exploreLabel="Open Instagram ›"
+        railClass="tall"
+      >
+        {reelCards.map((card, i) => (
+          <NfCardView
+            key={card.url || `reel-${i}`}
+            image={card.image}
+            title={card.title}
+            tags={card.tags}
+            badge={card.badge}
+            onOpen={() => open({ kind: "instagram", url: card.url || "demo" })}
+          />
+        ))}
+      </Rail>
+
+      <Rail
+        plat="ig"
+        icon="instagram"
+        title="Instagram Posts"
+        exploreHref={watch.channels.instagram}
+        exploreLabel="Open Instagram ›"
+        railClass="feed"
+      >
+        {postCards.map((post, i) => (
+          <IgPostCard
+            key={post.url && post.url !== "demo" ? post.url : `post-${i}`}
+            post={post}
+            handle={watch.handle}
+          />
+        ))}
+      </Rail>
+
+      <Rail
+        plat="fb"
+        icon="facebook"
+        title="Facebook"
+        exploreHref={watch.channels.facebook}
+        exploreLabel="Open Facebook ›"
+        railClass="feed"
+      >
+        {watch.fbPosts.map((post) => (
+          <FbPostCard key={post.text} post={post} />
+        ))}
+      </Rail>
+
+      <Rail
+        plat="li"
+        icon="linkedin"
+        title="LinkedIn"
+        exploreHref={watch.channels.linkedin}
+        exploreLabel="Open LinkedIn ›"
+      >
+        {watch.liCards.map((card: RailCard) => (
+          <NfCardView
+            key={card.title}
+            image={card.image}
+            title={card.title}
+            tags={card.tags}
+            playIcon="expand"
+            onOpen={() => open({ kind: "linkedin", url: "demo" })}
+          />
+        ))}
+      </Rail>
     </section>
   );
 }
@@ -222,213 +521,6 @@ export function FieldFootage() {
 }
 
 /* ============================================================
-   INSTAGRAM
-   ============================================================ */
-export function InstagramFeed() {
-  const { instagram: ig } = m;
-  const { open } = useLightbox();
-  return (
-    <section className="pad surface-cream" id="instagram" style={{ paddingTop: 0 }}>
-      <div className="wrap">
-        <div className="chan-head">
-          <div className="ig-profile">
-            <span className="ig-avatar">
-              <img
-                src="https://cdn.prod.website-files.com/686a42bf95a654b62506d2e5/686fa93a101af483ddc4eb80_Venus%20Foundation%20logo-02%202.svg"
-                alt="Venus Foundation"
-              />
-            </span>
-            <div>
-              <div className="ig-handle">{ig.handle}</div>
-              <div className="ig-name">{ig.name}</div>
-            </div>
-          </div>
-          <a
-            href={ig.profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="chan-follow ig"
-          >
-            <Icon name="instagram" />
-            Follow
-          </a>
-        </div>
-        <div className="ig-grid">
-          {ig.posts.map((post, i) => (
-            <Reveal
-              as="button"
-              type="button"
-              className="ig-post"
-              key={post.caption}
-              delay={(i + 1) as RevealDelay}
-              onClick={() => open({ kind: "instagram", url: post.url })}
-            >
-              <span className="ig-type">
-                <Icon name={post.type === "reel" ? "video" : "instagram"} />
-              </span>
-              <img src={post.image} alt="" loading="lazy" />
-              <span className="ig-ov">
-                <span className="ig-stats">
-                  <span>
-                    <Icon name="heart-fill" />
-                    {post.likes}
-                  </span>
-                  <span>
-                    <Icon name="comment" />
-                    {post.comments}
-                  </span>
-                </span>
-                <span className="ig-cap">{post.caption}</span>
-              </span>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   FACEBOOK
-   ============================================================ */
-export function FacebookFeed() {
-  const { facebook: fb } = m;
-  const { open } = useLightbox();
-  return (
-    <section className="pad surface-cream" id="facebook" style={{ paddingTop: 0 }}>
-      <div className="wrap">
-        <div className="chan-head">
-          <div className="chan-intro">
-            <span
-              className="chan-badge fb"
-              style={{ background: "rgba(24,119,242,.12)", color: "#1877f2" }}
-            >
-              <Icon name="facebook" />
-              Facebook
-            </span>
-            <SplitText as="h2" className="h1" text={fb.title} />
-          </div>
-          <a
-            href={fb.pageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="chan-follow"
-            style={{ background: "#1877f2", color: "#fff" }}
-          >
-            <Icon name="facebook" />
-            Follow
-          </a>
-        </div>
-        <div className="fb-grid">
-          {fb.posts.map((post) => (
-            <button
-              type="button"
-              className="fb-card"
-              key={post.caption}
-              onClick={() => open({ kind: "facebook", url: post.url, fbVideo: post.fbVideo })}
-            >
-              <div className="fb-media">
-                <img src={post.image} alt="" loading="lazy" />
-                <span className="fb-badge2">
-                  <Icon name="facebook" />
-                </span>
-                <span className="fb-zoom">
-                  <Icon name={post.fbVideo ? "play" : "expand"} />
-                </span>
-              </div>
-              <div className="fb-cap">
-                {post.caption}
-                <span className="fb-when">{post.when}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   LINKEDIN
-   ============================================================ */
-const LI_EMOJI: Record<string, string> = { like: "👍", clap: "👏", heart: "❤" };
-
-export function LinkedInFeed() {
-  const { linkedin: li } = m;
-  return (
-    <section className="pad surface-cream" id="linkedin" style={{ paddingTop: 0 }}>
-      <div className="wrap">
-        <div className="chan-head">
-          <div className="chan-intro">
-            <span className="chan-badge li">
-              <Icon name="linkedin" />
-              LinkedIn
-            </span>
-            <SplitText as="h2" className="h1" text={li.title} />
-          </div>
-          <a href={li.pageUrl} target="_blank" rel="noopener noreferrer" className="chan-follow li">
-            <Icon name="linkedin" />
-            Follow
-          </a>
-        </div>
-        <div className="li-grid">
-          {li.posts.map((post, i) => (
-            <Reveal
-              as="a"
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="li-card"
-              key={post.bold}
-              delay={(i + 1) as RevealDelay}
-            >
-              <div className="li-top">
-                <img
-                  className="li-logo"
-                  src="https://cdn.prod.website-files.com/686a42bf95a654b62506d2e5/686fa93a101af483ddc4eb80_Venus%20Foundation%20logo-02%202.svg"
-                  alt=""
-                />
-                <div>
-                  <div className="li-org">Venus Foundation</div>
-                  <div className="li-sub">
-                    2,400 followers · {post.time} · <Icon name="circle" />
-                  </div>
-                </div>
-                <span className="li-in">
-                  <Icon name="linkedin" />
-                </span>
-              </div>
-              <p className="li-text">
-                {post.text}
-                <b>{post.bold}</b>
-                {post.rest}
-                <span className="li-tags">{post.tags}</span>
-              </p>
-              <div className="li-media">
-                <img src={post.image} alt="" loading="lazy" />
-              </div>
-              <div className="li-react">
-                <span className="li-emojis">
-                  {post.reactions.map((r) => (
-                    <span className={`e-${r}`} key={r}>
-                      {LI_EMOJI[r]}
-                    </span>
-                  ))}
-                </span>
-                <span className="li-count">{post.count}</span>
-                <span className="li-cta">
-                  Read on LinkedIn <Icon name="arrow-right" />
-                </span>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
    SOCIAL WALL — unified, filterable feed
    ============================================================ */
 const WALL_FILTERS = [
@@ -445,6 +537,13 @@ const PLAT_CLASS: Record<WallCard["platform"], string> = {
   facebook: "fb",
   linkedin: "li",
 };
+
+const PROFILE = {
+  youtube: m.watch.channels.youtube,
+  instagram: m.watch.channels.instagram,
+  facebook: m.watch.channels.facebook,
+  linkedin: m.watch.channels.linkedin,
+} as const;
 
 function WallCardView({ card }: { card: WallCard }) {
   const { open } = useLightbox();
@@ -533,7 +632,7 @@ export function SocialWall() {
 }
 
 /* ============================================================
-   SCROLL-SCRUBBED SEQUENCE (unchanged behaviour)
+   SCROLL-SCRUBBED SEQUENCE
    ============================================================ */
 export function ScrubSequence() {
   const { scrub } = m;

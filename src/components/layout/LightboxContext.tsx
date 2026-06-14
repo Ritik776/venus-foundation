@@ -127,15 +127,19 @@ function Embed({ media }: { media: LightboxMedia }) {
           allowFullScreen
         />
       );
-    case "instagram":
+    case "instagram": {
+      // Instagram's embed is served canonically from /p/<code>/embed — the
+      // /reel/<code> form often renders blank, so normalise reel → p.
+      const permalink = media.url.replace("/reel/", "/p/").replace(/\/?$/, "/");
       return (
         <iframe
           title="Instagram post"
-          src={`${media.url.replace(/\/?$/, "/")}embed`}
+          src={`${permalink}embed/captioned`}
           scrolling="no"
           allowFullScreen
         />
       );
+    }
     case "facebook": {
       const plugin = media.fbVideo ? "video.php" : "post.php";
       return (
